@@ -1,10 +1,10 @@
 "use client";
 
-import PromptInput from "@/ui/prompt-input";
-import ImagePreview from "@/ui/image-preview";
 import { useState, useActionState } from "react";
 import { GenerateAction } from "@/app/action";
 import type { GenerateState } from "@/lib/definition";
+import PromptInput from "@/ui/prompt-input";
+import ImagePreview from "@/ui/image-preview";
 
 const initialState: GenerateState = {
   url: null,
@@ -19,11 +19,11 @@ export default function Home() {
   );
 
   return (
-    <main className="flex flex-col items-center min-h-screen p-6 bg-gray-50">
+    <main className="min-h-screen p-6 bg-gray-50 flex flex-col items-center">
       <div className="w-full max-w-2xl">
         <PromptInput
-          value={prompt}
-          onChange={setPrompt}
+          prompt={prompt}
+          setPrompt={setPrompt}
           formAction={formAction}
           isPending={isPending}
         />

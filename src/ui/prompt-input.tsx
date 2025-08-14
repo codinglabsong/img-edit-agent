@@ -1,32 +1,44 @@
 "use client";
 
 interface PromptInputProps {
-  value: string;
-  onChange: (val: string) => void;
+  prompt: string;
+  setPrompt: (val: string) => void;
   formAction: (formData: FormData) => void;
   isPending: boolean;
 }
 
 export default function PromptInput({
-  value,
-  onChange,
+  prompt,
+  setPrompt,
   formAction,
   isPending,
 }: PromptInputProps) {
   return (
-    <form action={formAction} className="flex gap-2">
+    <form
+      action={formAction}
+      className="flex flex-col gap-2"
+      encType="multipart/form-data"
+    >
       <input
         name="prompt"
         type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
         placeholder="Enter your prompt..."
-        className="flex-1 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        disabled={isPending}
+      />
+      <input
+        name="image"
+        type="file"
+        accept="image/*"
+        placeholder="Upload an image..."
+        className="p-2 border rounded-lg"
         disabled={isPending}
       />
       <button
         type="submit"
-        className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+        className="px-4 py-2 bg-black text-white rounded-lg disabled:opacity-60 w-fit"
         disabled={isPending}
       >
         {isPending ? "Generating..." : "Generate"}
