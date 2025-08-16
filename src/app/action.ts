@@ -1,5 +1,5 @@
 "use server";
- 
+
 import Replicate from "replicate";
 import type { GenerateState } from "@/lib/definition";
 
