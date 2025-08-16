@@ -1,5 +1,5 @@
 "use server";
-
+ 
 import Replicate from "replicate";
 import type { GenerateState } from "@/lib/definition";
 
@@ -33,7 +33,7 @@ export async function GenerateAction(
         input,
       },
     );
-
+ 
     let url: string | null = null;
 
     type FileOutput = {
