@@ -33,7 +33,7 @@ export async function GenerateAction(
         input,
       },
     );
- 
+
     let url: string | null = null;
 
     type FileOutput = {
