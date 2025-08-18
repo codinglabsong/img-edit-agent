@@ -19,8 +19,14 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen p-6 bg-gray-50 flex flex-col items-center">
-      <div className="w-full max-w-2xl">
+    <main className="p-6 flex flex-col gap-4 min-h-screen">
+      <h1 className="text-2xl font-bold">AI Image Editor</h1>
+
+      <div className="w-full">
+        <ImagePreview imageUrl={state.url ?? null} isPending={isPending} />
+      </div>
+
+      <div className="w-full">
         <PromptInput
           prompt={prompt}
           setPrompt={setPrompt}
@@ -30,10 +36,6 @@ export default function Home() {
         {state.error && (
           <p className="mt-2 text-sm text-red-600">{state.error}</p>
         )}
-      </div>
-
-      <div className="mt-8 w-full max-w-3xl">
-        <ImagePreview imageUrl={state.url ?? null} isPending={isPending} />
       </div>
     </main>
   );
