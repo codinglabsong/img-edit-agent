@@ -98,10 +98,6 @@ export default function Home() {
           })()}
         </div>
 
-        {/* <div className="w-full">
-        <ImagePreview imageUrl={state.url ?? null} isPending={isPending} />
-      </div> */}
-
         <div className="w-full mt-5">
           <PromptInput
             prompt={prompt}
