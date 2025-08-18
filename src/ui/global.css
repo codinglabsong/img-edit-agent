@@ -14,3 +14,41 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* scroll bar */
+/* Minimal, arrow-less scrollbar just for .minimal-scrollbar */
+.minimal-scrollbar {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Chromium/WebKit */
+.minimal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.minimal-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.minimal-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+}
+.minimal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 🔥 Hide ALL scrollbar buttons/arrows (covers stubborn variants) */
+.minimal-scrollbar::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+.minimal-scrollbar::-webkit-scrollbar-button:single-button,
+.minimal-scrollbar::-webkit-scrollbar-button:start:decrement,
+.minimal-scrollbar::-webkit-scrollbar-button:end:increment,
+.minimal-scrollbar::-webkit-scrollbar-button:start,
+.minimal-scrollbar::-webkit-scrollbar-button:end {
+  display: none;
+}

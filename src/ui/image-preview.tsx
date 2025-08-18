@@ -10,7 +10,7 @@ export default function ImagePreview({
   isPending,
 }: ImagePreviewProps) {
   return (
-    <div className="flex justify-center items-center w-full aspect-square border rounded-lg bg-white shadow-sm">
+    <div className="flex justify-center items-center w-full aspect-square border rounded-lg bg-gray-300 shadow-sm">
       {imageUrl ? (
         <img
           src={imageUrl}
