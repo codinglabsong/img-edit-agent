@@ -12,6 +12,13 @@ requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
+    "google-genai",
+    "pillow",
+    "python-dotenv",
+    "replicate",
+    "langchain-core",
+    "langgraph>0.2.27",
+    "langchain[google-genai]",
 ]
 
 [project.optional-dependencies]
@@ -33,11 +40,18 @@ target-version = ["py310"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 fix = true
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[tool.ruff.format]
+# Optional — style preferences:
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
 
 
 [tool.mypy]

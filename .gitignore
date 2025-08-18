@@ -54,5 +54,5 @@ build/
 *.tar.gz
 .benchmarks
 
-# secrets
-.env
+# Trash bin
+trash/
