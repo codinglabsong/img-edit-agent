@@ -51,7 +51,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE_URL: ${{ secrets.HF_SPACE_URL }}
         run: |
-          # Push to Hugging Face Spaces (Docker SDK)
+          # Push to Hugging Face Spaces (Docker SDK + Git)
           git branch -M main
           huggingface-cli login --token "$HF_TOKEN"
           git remote add origin $HF_SPACE_URL
