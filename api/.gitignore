@@ -1,0 +1,16 @@
+# Byte‐compiled / optimized / DLL files / .cache / .egg-info / setup / tars
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+.cache
+.pytest_cache
+.ruff_cache
+*.egg-info/
+build/
+.gradio
+*.tar.gz
+.benchmarks
+
+# env files
+.env
