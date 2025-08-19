@@ -163,18 +163,22 @@ export default function Home() {
 
     // Get AI response
     try {
-      const apiResponse = await sendChatMessage({
-        message: uploadMessage,
-        selected_images: [],
-        user_id: userId,
-      });
+      // const apiResponse = await sendChatMessage({
+      //   message: uploadMessage,
+      //   selected_images: [],
+      //   user_id: userId,
+      // });
 
-      const aiMessage = createMessage(apiResponse.response, "agent");
+      // const aiMessage = createMessage(apiResponse.response, "agent");
+      const aiMessage = createMessage(
+        `"${file.name}" was uploaded successfully! Select the images you want to edit.`,
+        "agent",
+      );
       addMessage(aiMessage);
     } catch (error) {
       console.error("Error getting AI response:", error);
       const fallbackMessage = createMessage(
-        `I see you've uploaded "${file.name}". I can help you edit this image! What would you like to do with it?`,
+        `I see you've uploaded "${file.name}". However, I encountered an error while processing it. Please try again later!`,
         "agent",
       );
       addMessage(fallbackMessage);
