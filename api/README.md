@@ -1,3 +1,13 @@
+---
+title: Img Edit Agent API
+emoji: 🖼️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # AI Image Editor API
 
 A FastAPI server that provides chat endpoints for the AI Image Editor application.
