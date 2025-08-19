@@ -1,4 +1,3 @@
-import atexit
 import os
 from functools import lru_cache
 from typing import List, Optional
@@ -14,17 +13,15 @@ load_dotenv()
 _agent_executor = None
 
 
-@lru_cache
+@lru_cache(maxsize=1)
 def get_checkpointer():
     DATABASE_URL = os.environ.get("DATABASE_URL")
     if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL is not set. Point it to your Neon connection string.")
 
-    cm = PostgresSaver.from_conn_string(DATABASE_URL)
-    saver = cm.__enter__()  # enter the context manager once
-    atexit.register(lambda: cm.__exit__(None, None, None))  # clean shutdown
-    saver.setup()  # create tables on first run; no-op afterward
-    return saver
+    checkpointer = PostgresSaver.from_conn_string(DATABASE_URL)
+    checkpointer.setup()  # create tables on first run; no-op afterward
+    return checkpointer
 
 
 def get_agent():
