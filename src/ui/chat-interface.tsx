@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Message } from "@/lib/types";
 
 interface ChatInterfaceProps {
@@ -127,7 +129,11 @@ export default function ChatInterface({
                   </div>
                 )}
                 <div className="flex-1">
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <div className="text-sm leading-relaxed markdown-content">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                   <p
                     className={`text-xs mt-2 opacity-70 ${
                       message.sender === "user"
