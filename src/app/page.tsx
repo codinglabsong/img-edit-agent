@@ -205,7 +205,7 @@ export default function Home() {
 
       // const aiMessage = createMessage(apiResponse.response, "agent");
       const aiMessage = createMessage(
-        `"${file.name}" was uploaded successfully! Select the images you want to edit.`,
+        `"${file.name}" was uploaded successfully! Now select the images you want to edit and ask away!`,
         "agent",
       );
       addMessage(aiMessage);
