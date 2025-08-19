@@ -5,6 +5,7 @@ on:
     branches: [main]
     # paths:
     #   - "api/**"
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -38,21 +39,25 @@ jobs:
           pip install --upgrade huggingface_hub
 
       - name: Deploy to Hugging Face Spaces
-        if: github.ref == 'refs/heads/main'
         run: |
           git init
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "Deploy to HF Spaces: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || true
+          git commit -m "Deploy to HF Spaces: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git branch -M main
 
       - name: Push to existing Space
+        if: github.ref == 'refs/heads/main'
         env:
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE_URL: ${{ secrets.HF_SPACE_URL }}
+          HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
         run: |
-          # Push to Hugging Face Spaces (Docker SDK + Git)
-          git branch -M main
-          huggingface-cli login --token "$HF_TOKEN"
-          git remote add origin $HF_SPACE_URL
+          set -e
+          # Build tokenized remote URL
+          HF_SPACE_URL="https://user:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE_NAME}.git"
+
+          # Add or update the remote and push local main -> remote main
+          git remote add origin "$HF_SPACE_URL" 2>/dev/null || git remote set-url origin "$HF_SPACE_URL"
           git push -f origin main
