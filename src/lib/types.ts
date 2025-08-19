@@ -11,4 +11,5 @@ export interface ImageItem {
   title: string;
   description: string;
   timestamp: Date;
+  type: "uploaded" | "generated" | "sample";
 }

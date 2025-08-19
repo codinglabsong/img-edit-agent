@@ -14,19 +14,35 @@ load_dotenv()
 
 # Global agent instance
 _agent_executor = None
+_checkpointer = None
 
 
 @lru_cache
 def get_checkpointer():
-    DATABASE_URL = os.environ.get("DATABASE_URL")
-    if not DATABASE_URL:
-        raise RuntimeError("DATABASE_URL is not set. Point it to your Neon connection string.")
+    """Open PostgresSaver once and reuse it (with keepalives)."""
+    global _checkpointer
 
-    cm = PostgresSaver.from_conn_string(DATABASE_URL)
-    saver = cm.__enter__()  # enter the context manager once
-    atexit.register(lambda: cm.__exit__(None, None, None))  # clean shutdown
-    saver.setup()  # create tables on first run; no-op afterward
-    return saver
+    if _checkpointer is None:
+        url = os.environ.get("DATABASE_URL")
+        if not url:
+            raise RuntimeError("DATABASE_URL is not set. Point it to your Neon connection string.")
+
+        # add keepalive params if missing
+        if "keepalives=" not in url:
+            sep = "&" if "?" in url else "?"
+            url += (
+                sep
+                + "sslmode=require&keepalives=1&keepalives_idle=30&keepalives_interval=10\
+                    &keepalives_count=3"
+            )
+
+        cm = PostgresSaver.from_conn_string(url)
+        saver = cm.__enter__()  # enter the context manager once
+        atexit.register(lambda: cm.__exit__(None, None, None))  # clean shutdown
+        saver.setup()  # create tables on first run; no-op afterward
+        _checkpointer = saver
+
+    return _checkpointer
 
 
 def get_agent():

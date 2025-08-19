@@ -22,6 +22,7 @@ const SAMPLE_IMAGES: ImageItem[] = [
     description:
       "A beautiful landscape with mountains and a serene lake reflecting the sky.",
     timestamp: new Date(Date.now() - 86400000), // 1 day ago
+    type: "sample",
   },
   {
     id: "img_002",
@@ -30,6 +31,7 @@ const SAMPLE_IMAGES: ImageItem[] = [
     description:
       "Urban cityscape with modern architecture and vibrant street life.",
     timestamp: new Date(Date.now() - 43200000), // 12 hours ago
+    type: "sample",
   },
   {
     id: "img_003",
@@ -38,26 +40,27 @@ const SAMPLE_IMAGES: ImageItem[] = [
     description:
       "Portrait photography with dramatic lighting and artistic composition.",
     timestamp: new Date(),
+    type: "sample",
   },
 ];
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
-  const [images] = useState<ImageItem[]>(SAMPLE_IMAGES);
+  const [images, setImages] = useState<ImageItem[]>(SAMPLE_IMAGES);
   const [isLoading, setIsLoading] = useState(false);
   const [userId] = useState(() => crypto.randomUUID());
 
+  // Reusable scroll function
+  const scrollToRight = () => {
+    const scrollContainer = document.getElementById("image-scroll-container");
+    if (scrollContainer) {
+      scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+    }
+  };
+
   // Scroll to the right end (newest images) on mount and window resize
   useEffect(() => {
-    const scrollContainer = document.getElementById("image-scroll-container");
-
-    const scrollToRight = () => {
-      if (scrollContainer) {
-        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
-      }
-    };
-
     // Initial scroll
     setTimeout(scrollToRight, 1);
 
@@ -133,6 +136,22 @@ export default function Home() {
   };
 
   const handleChatImageUpload = async (file: File) => {
+    // Create uploaded image item with UUID
+    const uploadedImage: ImageItem = {
+      id: crypto.randomUUID(),
+      url: URL.createObjectURL(file),
+      title: "",
+      description: "",
+      timestamp: new Date(),
+      type: "uploaded",
+    };
+
+    // Add to images list
+    setImages((prev) => [...prev, uploadedImage]);
+
+    // Scroll to show the new image
+    setTimeout(scrollToRight, 100);
+
     const uploadMessage = `📷 Uploaded image: ${file.name}`;
 
     // Add user message
