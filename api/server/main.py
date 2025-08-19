@@ -56,9 +56,7 @@ async def chat_endpoint(request: ChatRequest):
         return ChatResponse(response=response, status="success")
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing request: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
 
 
 if __name__ == "__main__":

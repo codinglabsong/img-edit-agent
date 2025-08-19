@@ -1,37 +1,48 @@
-import sqlite3
+import atexit
+import os
+from functools import lru_cache
 from typing import List, Optional
 
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.prebuilt import create_react_agent
 
 load_dotenv()
 
 # Global agent instance
 _agent_executor = None
-_memory = None
+
+
+@lru_cache
+def get_checkpointer():
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL is not set. Point it to your Neon connection string.")
+
+    cm = PostgresSaver.from_conn_string(DATABASE_URL)
+    saver = cm.__enter__()  # enter the context manager once
+    atexit.register(lambda: cm.__exit__(None, None, None))  # clean shutdown
+    saver.setup()  # create tables on first run; no-op afterward
+    return saver
 
 
 def get_agent():
     """Get or create the agent instance."""
-    global _agent_executor, _memory
+    global _agent_executor
 
     if _agent_executor is None:
+        # Build LLM
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
-
-        # Build persistent checkpointer
-        con = sqlite3.connect("db.sqlite3", check_same_thread=False)
-        _memory = SqliteSaver(con)
 
         # Create agent
         _agent_executor = create_react_agent(
             llm,
-            [],
+            tools=[],
             prompt="You are a helpful AI image editing assistant. \
-                You help users with image editing tasks and provide guidance \
+                    You help users with image editing tasks and provide guidance \
                     on how to modify their images.",
-            checkpointer=_memory,
+            checkpointer=get_checkpointer(),
         )
 
     return _agent_executor
