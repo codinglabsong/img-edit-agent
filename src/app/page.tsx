@@ -46,6 +46,7 @@ export default function Home() {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [images] = useState<ImageItem[]>(SAMPLE_IMAGES);
   const [isLoading, setIsLoading] = useState(false);
+  const [userId] = useState(() => crypto.randomUUID());
 
   // Scroll to the right end (newest images) on mount and window resize
   useEffect(() => {
@@ -114,7 +115,7 @@ export default function Home() {
       const apiResponse = await sendChatMessage({
         message,
         selected_images: selectedImageIds,
-        user_id: "user_001",
+        user_id: userId,
       });
 
       const aiMessage = createMessage(apiResponse.response, "agent");
@@ -146,7 +147,7 @@ export default function Home() {
       const apiResponse = await sendChatMessage({
         message: uploadMessage,
         selected_images: [],
-        user_id: "user_001",
+        user_id: userId,
       });
 
       const aiMessage = createMessage(apiResponse.response, "agent");
