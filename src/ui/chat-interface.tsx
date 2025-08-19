@@ -1,29 +1,28 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-
-export interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "agent";
-  timestamp: Date;
-}
+import type { Message } from "@/lib/types";
 
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (message: string) => void;
   onImageUpload?: (file: File) => void;
-  isPending?: boolean;
+  isLoading?: boolean;
 }
 
 export default function ChatInterface({
   messages,
   onSendMessage,
   onImageUpload,
-  isPending = false,
+  isLoading = false,
 }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = useState("");
+  const [isClient, setIsClient] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,7 +34,7 @@ export default function ChatInterface({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim() && !isPending) {
+    if (inputMessage.trim() && !isLoading) {
       onSendMessage(inputMessage.trim());
       setInputMessage("");
     }
@@ -51,15 +50,39 @@ export default function ChatInterface({
   };
 
   const formatTime = (date: Date) => {
+    if (!isClient) return ""; // Don't render time on server to avoid hydration mismatch
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
+
+  const TypingIndicator = () => (
+    <div className="flex justify-start">
+      <div className="bg-gray-600/60 text-gray-200 rounded-2xl px-4 py-3 shadow-lg">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
+            AI
+          </div>
+          <div className="flex space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div
+              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="w-full h-full flex flex-col max-h-full">
       {/* Chat Header */}
       <div className="p-6 border-b border-white/10 bg-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-900 to-blue-600 flex items-center justify-center">
             <svg
               className="w-5 h-5 text-white"
               fill="currentColor"
@@ -77,84 +100,54 @@ export default function ChatInterface({
               AI Assistant
             </h3>
             <p className="text-sm text-gray-400">
-              Ask questions about your images
+              Ask how you want your images edited
             </p>
           </div>
         </div>
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto minimal-scrollbar p-6 space-y-4 min-h-0">
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-400">
-              <div className="text-4xl mb-2">💬</div>
-              <p className="text-sm">Start a conversation with the AI agent</p>
-            </div>
-          </div>
-        ) : (
-          messages.map((message) => (
+      <div className="flex-1 overflow-y-auto minimal-scrollbar p-6 space-y-4 min-h-0 whitespace-pre-line">
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+          >
             <div
-              key={message.id}
-              className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+              className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-lg ${
+                message.sender === "user"
+                  ? "bg-blue-700/60 text-gray-100"
+                  : "bg-gray-600/20 text-gray-100"
+              }`}
             >
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-lg ${
-                  message.sender === "user"
-                    ? "bg-blue-600/80 text-white"
-                    : "bg-gray-600/60 text-gray-200"
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  {message.sender === "agent" && (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
-                      AI
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                    <p
-                      className={`text-xs mt-2 opacity-70 ${
-                        message.sender === "user"
-                          ? "text-blue-100"
-                          : "text-gray-300"
-                      }`}
-                    >
-                      {formatTime(message.timestamp)}
-                    </p>
+              <div className="flex items-start gap-2">
+                {message.sender === "agent" && (
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
+                    AI
                   </div>
-                  {message.sender === "user" && (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
-                      U
-                    </div>
-                  )}
+                )}
+                <div className="flex-1">
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <p
+                    className={`text-xs mt-2 opacity-70 ${
+                      message.sender === "user"
+                        ? "text-blue-100"
+                        : "text-gray-300"
+                    }`}
+                  >
+                    {formatTime(message.timestamp)}
+                  </p>
                 </div>
-              </div>
-            </div>
-          ))
-        )}
-        {isPending && (
-          <div className="flex justify-start">
-            <div className="bg-gray-600/60 text-gray-200 rounded-2xl px-4 py-3 shadow-lg">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
-                  AI
-                </div>
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                </div>
+                {message.sender === "user" && (
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
+                    U
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
+        ))}
+        {isLoading && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
 
@@ -171,7 +164,7 @@ export default function ChatInterface({
               accept="image/*"
               onChange={handleImageUpload}
               className="hidden"
-              disabled={isPending}
+              disabled={isLoading}
             />
             <svg
               className="w-5 h-5 text-gray-300 hover:text-white transition-colors"
@@ -195,12 +188,12 @@ export default function ChatInterface({
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/10 hover:bg-white/20 backdrop-blur-xl border-white/20 text-gray-100 placeholder-gray-400 transition-all duration-200"
-            disabled={isPending}
+            disabled={isLoading}
           />
           <button
             type="submit"
-            disabled={!inputMessage.trim() || isPending}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+            disabled={!inputMessage.trim() || isLoading}
+            className="cursor-pointer px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-900 hover:from-blue-700 hover:to-purple-950 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-102"
           >
             Send
           </button>

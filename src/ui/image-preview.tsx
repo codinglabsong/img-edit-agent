@@ -2,13 +2,9 @@
 
 interface ImagePreviewProps {
   imageUrl: string | null;
-  isPending: boolean;
 }
 
-export default function ImagePreview({
-  imageUrl,
-  isPending,
-}: ImagePreviewProps) {
+export default function ImagePreview({ imageUrl }: ImagePreviewProps) {
   return (
     <div className="flex justify-center items-center w-full aspect-square border rounded-lg bg-gray-300 shadow-sm">
       {imageUrl ? (
@@ -17,8 +13,6 @@ export default function ImagePreview({
           alt="Generated image"
           className="object-contain w-full h-full rounded-lg"
         />
-      ) : isPending ? (
-        <span className="text-gray-400">Generating...</span>
       ) : (
         <span className="text-gray-400">Your image will appear here</span>
       )}

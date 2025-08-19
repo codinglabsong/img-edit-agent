@@ -1,0 +1,75 @@
+import ImagePreview from "@/ui/image-preview";
+import type { ImageItem } from "@/lib/types";
+
+interface ImageCardProps {
+  image: ImageItem;
+  isSelected: boolean;
+  fallbackImageUrl?: string | null;
+  onSelect: (imageId: string) => void;
+}
+
+export default function ImageCard({
+  image,
+  isSelected,
+  fallbackImageUrl,
+  onSelect,
+}: ImageCardProps) {
+  return (
+    <div
+      onClick={() => onSelect(image.id)}
+      className={`
+        flex-shrink-0 flex flex-col gap-3 mt-2
+        rounded-2xl
+        bg-white/5 backdrop-blur-xl
+        border-2 transition-all duration-300
+        shadow-xl p-4
+        cursor-pointer
+        w-[280px] sm:w-[320px] md:w-[280px] lg:w-[300px]
+        hover:scale-102 hover:shadow-2xl
+        ${
+          isSelected
+            ? "border-blue-500/60 bg-blue-600/10"
+            : "border-white/10 hover:border-white/20"
+        }
+      `}
+    >
+      {/* Selection Indicator */}
+      <div
+        className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center
+    ${isSelected ? "bg-blue-600" : "bg-gray-500"}`}
+      >
+        <svg
+          className={`w-4 h-4 ${isSelected ? "text-white" : "text-gray-700"}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+
+      {/* Image Preview */}
+      <div className="relative mt-8">
+        <ImagePreview imageUrl={image.url ?? fallbackImageUrl ?? null} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-xl" />
+      </div>
+
+      {/* Image Info */}
+      <div className="space-y-2">
+        <h3 className="font-semibold text-gray-300 text-lg">{image.title}</h3>
+        <div className="max-h-20 overflow-auto rounded-lg bg-black/20 backdrop-blur-xl border border-white/10 p-3 minimal-scrollbar">
+          <p className="text-sm leading-relaxed text-gray-300">
+            {image.description}
+          </p>
+        </div>
+        <div className="flex items-center justify-between text-xs text-gray-400">
+          <span>ID: {image.id}</span>
+          <span>{image.timestamp.toLocaleDateString()}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
