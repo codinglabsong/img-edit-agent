@@ -56,3 +56,6 @@ build/
 
 # Trash bin
 trash/
+
+# Database
+db.sqlite3
