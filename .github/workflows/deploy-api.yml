@@ -1,0 +1,110 @@
+name: Deploy API to Hugging Face Spaces
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "api/**"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "api/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd api
+          pip install uv
+          uv pip install --system .
+
+      - name: Run tests
+        run: |
+          cd api
+          python -m pytest tests/ -v
+
+      - name: Deploy to Hugging Face Spaces
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_URL: ${{ secrets.HF_SPACE_URL }}
+        run: |
+          cd api
+
+          # Create app.py for Hugging Face Spaces
+          cat > app.py << 'EOF'
+          import os
+          import subprocess
+          import sys
+
+          # Add the current directory to Python path
+          sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+          # Import and run the FastAPI app
+          from server.main import app
+
+          if __name__ == "__main__":
+              import uvicorn
+              port = int(os.environ.get("PORT", 7860))
+              uvicorn.run(app, host="0.0.0.0", port=port)
+          EOF
+
+          # Create requirements.txt for Hugging Face Spaces
+          uv pip freeze > requirements.txt
+
+          # Create .gitignore for the space
+          cat > .gitignore << 'EOF'
+          __pycache__/
+          *.pyc
+          .pytest_cache/
+          .ruff_cache/
+          .env
+          *.log
+          EOF
+
+          # Create README.md for the space
+          cat > README.md << 'EOF'
+          # AI Image Editor API
+
+          This is the API backend for the AI Image Editor application.
+
+          ## Endpoints
+
+          - `GET /` - Root endpoint
+          - `GET /health` - Health check
+          - `POST /chat` - Chat endpoint
+
+          ## Environment Variables
+
+          - `PORT` - Server port (default: 7860)
+
+          ## Usage
+
+          The API is automatically deployed and available at the Hugging Face Spaces URL.
+          EOF
+
+          # Initialize git repository for the space
+          git init
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Add all files
+          git add .
+
+          # Commit changes
+          git commit -m "Deploy API from GitHub Actions - $(date)"
+
+          # Push to Hugging Face Spaces
+          git remote add origin $HF_SPACE_URL
+          git push -u origin main --force
