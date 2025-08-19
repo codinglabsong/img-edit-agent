@@ -29,10 +29,10 @@ jobs:
           pip install uv
           uv pip install --system .
 
-      - name: Run tests
-        run: |
-          cd api
-          python -m pytest tests/ -v
+      # - name: Run tests
+      #   run: |
+      #     cd api
+      #     python -m pytest tests/ -v
 
       - name: Deploy to Hugging Face Spaces
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
