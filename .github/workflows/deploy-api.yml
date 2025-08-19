@@ -3,8 +3,8 @@ name: Deploy API to Hugging Face Spaces
 on:
   push:
     branches: [main]
-    # paths:
-    #   - "api/**"
+    paths:
+      - "api/**"
   workflow_dispatch:
 
 jobs:
