@@ -42,6 +42,9 @@ jobs:
         run: |
           cd api
 
+          # Install huggingface_hub for API operations
+          pip install huggingface_hub
+
           # Create app.py for Hugging Face Spaces
           cat > app.py << 'EOF'
           import os
@@ -94,6 +97,10 @@ jobs:
           The API is automatically deployed and available at the Hugging Face Spaces URL.
           EOF
 
+          # Create the Hugging Face Space if it doesn't exist
+          echo "Creating Hugging Face Space: $HF_SPACE_URL"
+          huggingface-cli repo create $HF_SPACE_URL --type space --space-sdk gradio --private false || echo "Space might already exist"
+
           # Initialize git repository for the space
           git init
           git config user.name "GitHub Actions"
@@ -105,6 +112,6 @@ jobs:
           # Commit changes
           git commit -m "Deploy API from GitHub Actions - $(date)"
 
-                     # Push to Hugging Face Spaces
-           git remote add origin https://huggingface.co/spaces/$HF_SPACE_URL
-           git push -u origin master --force
+          # Push to Hugging Face Spaces
+          git remote add origin https://huggingface.co/spaces/$HF_SPACE_URL
+          git push -u origin master --force

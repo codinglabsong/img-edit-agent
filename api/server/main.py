@@ -118,7 +118,7 @@ async def chat_endpoint(request: ChatRequest):
         request: ChatRequest containing message, selected_images, and user_id
 
     Returns:
-        ChatResponse with AI response and status
+        ChatResponse with AI response and status.
     """
     try:
         # Get template response based on message and context
