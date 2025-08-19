@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import ChatInterface from "@/ui/chat-interface";
 import ImageCard from "@/ui/image-card";
-import { sendChatMessage } from "@/lib/actions";
+import { sendChatMessage, uploadImageToS3 } from "@/lib/actions";
 import type { Message, ImageItem } from "@/lib/types";
 
 const INITIAL_MESSAGE: Message = {
@@ -136,21 +136,55 @@ export default function Home() {
   };
 
   const handleChatImageUpload = async (file: File) => {
+    const imageId = crypto.randomUUID();
+    const objectUrl = URL.createObjectURL(file);
+
     // Create uploaded image item with UUID
     const uploadedImage: ImageItem = {
-      id: crypto.randomUUID(),
-      url: URL.createObjectURL(file),
-      title: "",
-      description: "",
+      id: imageId,
+      url: objectUrl,
+      title: file.name.replace(/\.[^/.]+$/, ""),
+      description: "Uploaded by You",
       timestamp: new Date(),
       type: "uploaded",
     };
 
-    // Add to images list
+    // Add to images list immediately for UI responsiveness
     setImages((prev) => [...prev, uploadedImage]);
 
     // Scroll to show the new image
     setTimeout(scrollToRight, 100);
+
+    // Upload to S3 in the background
+    const s3Result = await uploadImageToS3(file, imageId, userId);
+
+    if (s3Result.success && s3Result.url) {
+      console.log("S3 upload successful, updating image URL:", s3Result.url);
+
+      // Update the image with S3 URL
+      setImages((prev) =>
+        prev.map((img) => {
+          if (img.id === imageId) {
+            console.log(
+              "Updating image",
+              imageId,
+              "from",
+              img.url,
+              "to",
+              s3Result.url,
+            );
+            return { ...img, url: s3Result.url! };
+          }
+          return img;
+        }),
+      );
+      // Clean up object URL to prevent memory leak
+      URL.revokeObjectURL(objectUrl);
+    } else {
+      console.error("S3 upload failed:", s3Result.error);
+      // If S3 upload failed, keep the object URL but clean it up later
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60000); // Clean up after 1 minute
+    }
 
     const uploadMessage = `📷 Uploaded image: ${file.name}`;
 
