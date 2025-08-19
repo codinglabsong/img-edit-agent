@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for faster Python package management
+# Install uv for faster Python package management.
 RUN pip install uv
 
 # Copy pyproject.toml and lock file (if exists)

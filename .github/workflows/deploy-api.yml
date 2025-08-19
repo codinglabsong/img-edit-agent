@@ -105,6 +105,6 @@ jobs:
           # Commit changes
           git commit -m "Deploy API from GitHub Actions - $(date)"
 
-          # Push to Hugging Face Spaces
-          git remote add origin $HF_SPACE_URL
-          git push -u origin main --force
+                     # Push to Hugging Face Spaces
+           git remote add origin https://huggingface.co/spaces/$HF_SPACE_URL
+           git push -u origin master --force
