@@ -8,6 +8,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.prebuilt import create_react_agent
 
+from llm.prompt import system_message
+
 load_dotenv()
 
 # Global agent instance
@@ -39,9 +41,7 @@ def get_agent():
         _agent_executor = create_react_agent(
             llm,
             tools=[],
-            prompt="You are a helpful AI image editing assistant. \
-                    You help users with image editing tasks and provide guidance \
-                    on how to modify their images.",
+            prompt=system_message,
             checkpointer=get_checkpointer(),
         )
 
