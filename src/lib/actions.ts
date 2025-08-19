@@ -9,7 +9,14 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 interface ChatRequest {
   message: string;
-  selected_images: string[];
+  selected_images: Array<{
+    id: string;
+    url: string | null;
+    title: string;
+    description: string;
+    timestamp: Date;
+    type: "uploaded" | "generated" | "sample";
+  }>;
   user_id?: string;
 }
 

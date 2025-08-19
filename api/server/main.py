@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ app = FastAPI(
 
 class ChatRequest(BaseModel):
     message: str
-    selected_images: Optional[List[str]] = []
+    selected_images: Optional[List[Dict[str, Any]]] = []
     user_id: Optional[str] = None
 
 

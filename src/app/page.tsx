@@ -101,13 +101,12 @@ export default function Home() {
 
   const handleChatMessage = async (message: string) => {
     const selectedImageIds = Array.from(selectedImages);
-    const imageMetadata =
-      selectedImageIds.length > 0
-        ? `\n\nSelected Images: ${selectedImageIds.join(", ")}`
-        : "";
+    const selectedImageObjects = images.filter((img) =>
+      selectedImageIds.includes(img.id),
+    );
 
-    // Add user message
-    const userMessage = createMessage(message + imageMetadata, "user");
+    // Add user message (without image metadata)
+    const userMessage = createMessage(message, "user");
     addMessage(userMessage);
 
     // Set loading state
@@ -117,7 +116,7 @@ export default function Home() {
     try {
       const apiResponse = await sendChatMessage({
         message,
-        selected_images: selectedImageIds,
+        selected_images: selectedImageObjects,
         user_id: userId,
       });
 

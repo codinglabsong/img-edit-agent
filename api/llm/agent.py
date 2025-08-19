@@ -65,7 +65,7 @@ def get_agent():
 
 
 def chat_with_agent(
-    message: str, user_id: str = "default", selected_images: Optional[List[str]] = None
+    message: str, user_id: str = "default", selected_images: Optional[List[dict]] = None
 ) -> str:
     """
     Send a message to the agent and get a response.
@@ -73,7 +73,7 @@ def chat_with_agent(
     Args:
         message: The user's message
         user_id: Unique identifier for the user/thread
-        selected_images: List of selected image names (optional)
+        selected_images: List of selected image objects (optional)
 
     Returns:
         The agent's response as a string
@@ -83,7 +83,16 @@ def chat_with_agent(
     # Prepare the message with context
     full_message = message
     if selected_images and len(selected_images) > 0:
-        image_context = f" Selected images: {', '.join(selected_images)}."
+        image_context = "\n\nSelected Images:\n"
+        for i, img in enumerate(selected_images, 1):
+            image_context += (
+                f"{i}. {img.get('title', 'Untitled')} (ID: {img.get('id', 'unknown')})\n"
+            )
+            image_context += f"   Type: {img.get('type', 'unknown')}\n"
+            image_context += f"   Description: {img.get('description', 'No description')}\n"
+            if img.get("url"):
+                image_context += f"   URL: {img.get('url')}\n"
+            image_context += "\n"
         full_message = message + image_context
 
     # Configure thread ID for conversation continuity
