@@ -44,8 +44,18 @@ export default function ChatInterface({
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && onImageUpload) {
-      onImageUpload(file);
+    if (file) {
+      // Check file size (10MB = 10 * 1024 * 1024 bytes)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        alert("Image size cannot exceed 10MB. Please choose a smaller image.");
+        e.target.value = "";
+        return;
+      }
+
+      if (onImageUpload) {
+        onImageUpload(file);
+      }
     }
     // Reset the input value so the same file can be selected again
     e.target.value = "";
