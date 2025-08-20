@@ -235,72 +235,74 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-700 via-gray-950 to-black">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6 min-h-screen">
-        {/* Header */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="p-1 text-3xl font-bold bg-gradient-to-r from-white to-gray-600 bg-clip-text text-transparent">
-                AI Image Editor
-              </h1>
-              <p className="text-gray-400 mt-1">
-                Transform your images with AI-powered editing
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Image Gallery */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-200">
-              Your Gallery
-            </h2>
-            {selectedImages.size === 0 ? (
-              <p className="text-sm text-gray-400">
-                Click to select images for editing
-              </p>
-            ) : (
-              <div className="bg-blue-600/20 backdrop-blur-xl rounded-xl px-3 border border-blue-500/30">
-                <span className="text-blue-300 text-sm font-medium">
-                  {selectedImages.size} image
-                  {selectedImages.size !== 1 ? "s" : ""} selected
-                </span>
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-100 via-gray-950 to-black">
+      <div className="h-full overflow-y-auto">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6 min-h-full">
+          {/* Header */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="p-1 text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                  AI Image Editor
+                </h1>
+                <p className="text-gray-100 mt-1">
+                  Transform your images with AI-powered editing
+                </p>
               </div>
-            )}
-          </div>
-
-          <div
-            className="w-full overflow-x-auto minimal-scrollbar"
-            id="image-scroll-container"
-          >
-            <div className="flex gap-6 px-2 py-4">
-              {images.map((image) => (
-                <ImageCard
-                  key={image.id}
-                  image={image}
-                  isSelected={selectedImages.has(image.id)}
-                  fallbackImageUrl={null}
-                  onSelect={handleImageSelection}
-                />
-              ))}
-              {/* add some space at the end to not interfere with ImageCard hover animation */}
-              <div>-</div>
             </div>
           </div>
-        </div>
 
-        {/* Chat Interface */}
-        <div className="h-[600px] bg-gray-700/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
-          <ChatInterface
-            messages={messages}
-            onSendMessage={handleChatMessage}
-            onImageUpload={handleChatImageUpload}
-            isLoading={isLoading}
-          />
+          {/* Image Gallery */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/20">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-200">
+                Your Gallery
+              </h2>
+              {selectedImages.size === 0 ? (
+                <p className="text-sm text-gray-400">
+                  Click to select images for editing
+                </p>
+              ) : (
+                <div className="bg-blue-600/20 backdrop-blur-xl rounded-xl px-3 border border-blue-500/30">
+                  <span className="text-blue-300 text-sm font-medium">
+                    {selectedImages.size} image
+                    {selectedImages.size !== 1 ? "s" : ""} selected
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div
+              className="w-full overflow-x-auto minimal-scrollbar"
+              id="image-scroll-container"
+            >
+              <div className="flex gap-6 px-2 py-4">
+                {images.map((image) => (
+                  <ImageCard
+                    key={image.id}
+                    image={image}
+                    isSelected={selectedImages.has(image.id)}
+                    fallbackImageUrl={null}
+                    onSelect={handleImageSelection}
+                  />
+                ))}
+                {/* add some space at the end to not interfere with ImageCard hover animation */}
+                <div>-</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Chat Interface */}
+          <div className="h-[600px] bg-gray-700/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+            <ChatInterface
+              messages={messages}
+              onSendMessage={handleChatMessage}
+              onImageUpload={handleChatImageUpload}
+              isLoading={isLoading}
+            />
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

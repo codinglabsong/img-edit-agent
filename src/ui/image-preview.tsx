@@ -23,7 +23,7 @@ export default function ImagePreview({ imageUrl }: ImagePreviewProps) {
   };
 
   return (
-    <div className="flex justify-center items-center w-full aspect-square border rounded-lg bg-gray-300 shadow-sm">
+    <div className="flex justify-center items-center w-full aspect-square border rounded-xl bg-gray-300 shadow-sm">
       {imageUrl && imageUrl.trim() !== "" && !imageError ? (
         <img
           src={imageUrl}
@@ -39,7 +39,7 @@ export default function ImagePreview({ imageUrl }: ImagePreviewProps) {
           <span className="text-gray-500 text-xs">URL: {imageUrl}</span>
         </div>
       ) : (
-        <span className="text-gray-400">Your image will appear here</span>
+        <span className="text-gray-500">Your image will appear here</span>
       )}
     </div>
   );

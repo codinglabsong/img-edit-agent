@@ -54,7 +54,7 @@ export default function ImageCard({
       {/* Image Preview */}
       <div className="relative mt-8">
         <ImagePreview imageUrl={image.url ?? fallbackImageUrl ?? null} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-xl" />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-300/30 to-gray-400/30 rounded-xl" />
       </div>
 
       {/* Image Info */}
