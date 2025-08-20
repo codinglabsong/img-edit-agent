@@ -26,6 +26,7 @@ def initialize_tools():
         """
         Generate an image based on a prompt.
         """
+        print(f"[TOOL] generate_image called with prompt: {prompt[:50]}..., user_id: {user_id}, image_url: {image_url[:50]}...")
         input = {
             "width": 768,
             "height": 768,
@@ -38,17 +39,21 @@ def initialize_tools():
         }
 
         # Generate image using Replicate
+        print(f"[TOOL] Calling Replicate with input: {input}")
         version = "stability-ai/sdxl:" "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
         output = replicate.run(
             version,
             input=input,
         )
+        print(f"[TOOL] Replicate output: {output}")
 
         # Check if generation was successful
         if not output or len(output) == 0:
+            print("[TOOL] Replicate generation failed - no output")
             return "Failed to generate image. Please try again."
 
         generated_image_url = output[0] if isinstance(output, list) else output
+        print(f"[TOOL] Generated image URL: {generated_image_url}")
 
         # Download the generated image
         image_data: Optional[bytes] = None
@@ -65,6 +70,7 @@ def initialize_tools():
         image_id = str(uuid.uuid4())
 
         # Upload to S3
+        print(f"[TOOL] Uploading to S3 with image_id: {image_id}")
         try:
             s3_result = upload_generated_image_to_s3(
                 image_data=image_data,
@@ -73,15 +79,22 @@ def initialize_tools():
                 prompt=prompt,
                 title=title,
             )
+            print(f"[TOOL] S3 upload result: {s3_result}")
 
             if s3_result["success"]:
-                return f"Image generated successfully! User can find it his/her gallery. \
+                result_msg = f"Image generated successfully! User can find it his/her gallery. \
                     Image ID: {image_id}, Title: {title}"
+                print(f"[TOOL] Returning success: {result_msg}")
+                return result_msg
             else:
-                return f"Image generated but failed to save: {s3_result.get('error', 'Unknown error')}"
+                error_msg = f"Image generated but failed to save: {s3_result.get('error', 'Unknown error')}"
+                print(f"[TOOL] Returning error: {error_msg}")
+                return error_msg
 
         except Exception as e:
-            return f"Image generated but failed to save to storage: {str(e)}"
+            error_msg = f"Image generated but failed to save to storage: {str(e)}"
+            print(f"[TOOL] Exception during S3 upload: {error_msg}")
+            return error_msg
 
         finally:
             if image_data:

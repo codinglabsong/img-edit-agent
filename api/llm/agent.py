@@ -82,6 +82,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
     Returns:
         Tuple of (agent_response, generated_image_data)
     """
+    print(f"[AGENT] Starting chat_with_agent - user_id: {user_id}, message: {message[:100]}...")
     agent = get_agent()
 
     # Prepare the message with context
@@ -101,26 +102,35 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
     config = {"configurable": {"thread_id": user_id}}
 
     # Get response from agent
+    print(f"[AGENT] Invoking agent with config: {config}")
     response = agent.invoke({"messages": [{"role": "user", "content": full_message}]}, config=config)
+    print(f"[AGENT] Agent response received: {type(response)}")
 
     # Extract the last message from the agent
     agent_response = "I'm sorry, I couldn't process your request. Please try again."
     generated_image_data = None
 
     if response and "messages" in response and len(response["messages"]) > 0:
+        print(f"[AGENT] Found {len(response['messages'])} messages in response")
         last_message = response["messages"][-1]
+        print(f"[AGENT] Last message type: {type(last_message)}")
         # Handle both AIMessage objects and dictionaries
         if hasattr(last_message, "content"):
             agent_response = last_message.content
         elif isinstance(last_message, dict) and "content" in last_message:
             agent_response = last_message["content"]
+        print(f"[AGENT] Extracted agent response: {agent_response[:100]}...")
 
         # Check if any tools were used (image generation)
+        print(f"[AGENT] Checking intermediate steps: {response.get('intermediate_steps', [])}")
         if "intermediate_steps" in response and response["intermediate_steps"]:
-            for step in response["intermediate_steps"]:
+            print(f"[AGENT] Found {len(response['intermediate_steps'])} intermediate steps")
+            for i, step in enumerate(response["intermediate_steps"]):
+                print(f"[AGENT] Step {i}: {step}")
                 if len(step) >= 2 and "generate_image" in str(step[0]):
                     # Extract image data from the tool result
                     tool_result = step[1]
+                    print(f"[AGENT] Found generate_image tool result: {tool_result}")
 
                     # Try multiple patterns to find the image ID
                     image_id = None
@@ -143,6 +153,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
                         title = title_match.group(1)
 
                     if image_id:
+                        print(f"[AGENT] Found image_id: {image_id}, attempting to get S3 metadata")
                         # Get metadata from S3
                         import boto3
 
@@ -154,11 +165,15 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
                         )
 
                         bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+                        print(f"[AGENT] Using bucket: {bucket_name}")
                         if bucket_name:
                             try:
                                 # Get metadata from S3
-                                metadata_response = s3_client.head_object(Bucket=bucket_name, Key=f"users/{user_id}/images/{image_id}")
+                                s3_key = f"users/{user_id}/images/{image_id}"
+                                print(f"[AGENT] Getting metadata for S3 key: {s3_key}")
+                                metadata_response = s3_client.head_object(Bucket=bucket_name, Key=s3_key)
                                 metadata = metadata_response.get("Metadata", {})
+                                print(f"[AGENT] Retrieved metadata: {metadata}")
 
                                 # Generate presigned URL
                                 presigned_url = s3_client.generate_presigned_url(
@@ -166,6 +181,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
                                     Params={"Bucket": bucket_name, "Key": f"users/{user_id}/images/{image_id}"},
                                     ExpiresIn=7200,  # 2 hours
                                 )
+                                print(f"[AGENT] Generated presigned URL: {presigned_url[:50]}...")
 
                                 generated_image_data = {
                                     "id": image_id,
@@ -175,15 +191,17 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
                                     "timestamp": metadata.get("uploadedAt", datetime.now().isoformat()),
                                     "type": "generated",
                                 }
+                                print(f"[AGENT] Created generated_image_data: {generated_image_data}")
 
                             except Exception as e:
-                                print(f"Error getting S3 metadata: {e}")
+                                print(f"[AGENT] Error getting S3 metadata: {e}")
                                 # Don't return image data if we can't get a valid URL
                                 generated_image_data = None
                                 # Add error message to agent response
                                 agent_response += "\n\n⚠️ Note: I generated the image successfully, \
                                                     but there was an issue retrieving it from the database. Please try again."
 
+    print(f"[AGENT] Returning response - agent_response length: {len(agent_response)}, generated_image_data: {generated_image_data is not None}")
     return agent_response, generated_image_data
 
 
