@@ -37,9 +37,11 @@ def initialize_tools():
         }
 
         # Generate image using Replicate
+        version = (
+            "stability-ai/sdxl:" "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
+        )
         output = replicate.run(
-            "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d6 \
-                85e02b063e37e496e96eefd46c929f9bdc",
+            version,
             input=input,
         )
 
@@ -86,3 +88,16 @@ def initialize_tools():
                 del image_data
 
     return [generate_image]
+
+
+if __name__ == "__main__":
+    # Test the tool
+    generate_image = initialize_tools()[0]
+    output = generate_image.invoke(
+        {
+            "prompt": "A woman in a beautiful sunset over a calm ocean",
+            "user_id": "123",
+            "image_url": "https://replicate.delivery/pbxt/N55l5TWGh8mSlNzW8usReoaNhGbFwvLeZR3TX1NL4pd2Wtfv/replicate-prediction-f2d25rg6gnrma0cq257vdw2n4c.png",
+        }
+    )
+    print(output)
