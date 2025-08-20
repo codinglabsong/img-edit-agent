@@ -203,11 +203,11 @@ export default function ChatInterface({
       {/* Input Form */}
       <form
         onSubmit={handleSubmit}
-        className="p-6 border-t border-white/10 bg-white/5"
+        className="p-4 sm:p-6 border-t border-white/10 bg-white/5"
       >
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           {/* Image Upload Button */}
-          <label className="flex items-center justify-center w-12 h-12 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105">
+          <label className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 flex-shrink-0">
             <input
               type="file"
               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
@@ -216,7 +216,7 @@ export default function ChatInterface({
               disabled={isLoading}
             />
             <svg
-              className="w-5 h-5 text-gray-300 hover:text-white transition-colors"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 hover:text-white transition-colors"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -237,13 +237,13 @@ export default function ChatInterface({
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/10 hover:bg-white/20 backdrop-blur-xl border-white/20 text-gray-100 placeholder-gray-400 transition-all duration-200"
+            className="flex-1 min-w-0 p-2 sm:p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/10 hover:bg-white/20 backdrop-blur-xl border-white/20 text-gray-100 placeholder-gray-400 transition-all duration-200 text-sm sm:text-base"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={!inputMessage.trim() || isLoading}
-            className="cursor-pointer px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-900 hover:from-blue-700 hover:to-purple-950 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-102"
+            className="cursor-pointer px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-900 hover:from-blue-700 hover:to-purple-950 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-102 text-sm sm:text-base flex-shrink-0"
           >
             Send
           </button>

@@ -59,10 +59,25 @@ export default function Home() {
     }
   };
 
-  // Scroll to the right end (newest images) on mount and window resize
+  // Scroll functions for arrow buttons
+  const scrollLeft = () => {
+    const scrollContainer = document.getElementById("image-scroll-container");
+    if (scrollContainer) {
+      scrollContainer.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    const scrollContainer = document.getElementById("image-scroll-container");
+    if (scrollContainer) {
+      scrollContainer.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  // Only scroll on window resize, not on initial load
   useEffect(() => {
-    // Initial scroll
-    setTimeout(scrollToRight, 1);
+    // Initial scroll to show newest images
+    setTimeout(scrollToRight, 100);
 
     // Add resize listener
     window.addEventListener("resize", scrollToRight);
@@ -245,7 +260,7 @@ export default function Home() {
                 <h1 className="p-1 text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                   AI Image Editor
                 </h1>
-                <p className="text-gray-100 mt-1">
+                <p className="text-gray-100 mt-1 text-sm sm:text-base">
                   Transform your images with AI-powered editing
                 </p>
               </div>
@@ -259,8 +274,8 @@ export default function Home() {
                 Your Gallery
               </h2>
               {selectedImages.size === 0 ? (
-                <p className="text-sm text-gray-400">
-                  Click to select images for editing
+                <p className="text-sm text-gray-400 text-right">
+                  Select images for editing
                 </p>
               ) : (
                 <div className="bg-blue-600/20 backdrop-blur-xl rounded-xl px-3 border border-blue-500/30">
@@ -272,23 +287,43 @@ export default function Home() {
               )}
             </div>
 
-            <div
-              className="w-full overflow-x-auto minimal-scrollbar"
-              id="image-scroll-container"
-            >
-              <div className="flex gap-6 px-2 py-4">
-                {images.map((image) => (
-                  <ImageCard
-                    key={image.id}
-                    image={image}
-                    isSelected={selectedImages.has(image.id)}
-                    fallbackImageUrl={null}
-                    onSelect={handleImageSelection}
-                  />
-                ))}
-                {/* add some space at the end to not interfere with ImageCard hover animation */}
-                <div>-</div>
+            <div className="relative">
+              <div
+                className="w-full overflow-x-auto minimal-scrollbar"
+                id="image-scroll-container"
+              >
+                <div className="flex gap-6 px-2 py-4">
+                  {images.map((image) => (
+                    <ImageCard
+                      key={image.id}
+                      image={image}
+                      isSelected={selectedImages.has(image.id)}
+                      fallbackImageUrl={null}
+                      onSelect={handleImageSelection}
+                    />
+                  ))}
+                  {/* add some space at the end to not interfere with ImageCard hover animation */}
+                  <div className="hidden sm:block">-</div>
+                </div>
               </div>
+            </div>
+
+            {/* Arrow Navigation Buttons */}
+            <div className="flex justify-center mt-4 gap-16">
+              <button
+                onClick={scrollLeft}
+                className="text-2xl text-gray-400 hover:text-white transition-colors duration-200 font-bold"
+                aria-label="Scroll left"
+              >
+                &lt;
+              </button>
+              <button
+                onClick={scrollRight}
+                className="text-2xl text-gray-400 hover:text-white transition-colors duration-200 font-bold"
+                aria-label="Scroll right"
+              >
+                &gt;
+              </button>
             </div>
           </div>
 
