@@ -9,6 +9,7 @@ from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.prebuilt import create_react_agent
 
 from llm.prompt import system_message
+from llm.tools import initialize_tools
 
 load_dotenv()
 
@@ -53,10 +54,13 @@ def get_agent():
         # Build LLM
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
+        # Build tools
+        tools = initialize_tools()
+
         # Create agent
         _agent_executor = create_react_agent(
             llm,
-            tools=[],
+            tools=tools,
             prompt=system_message,
             checkpointer=get_checkpointer(),
         )

@@ -21,6 +21,8 @@ dependencies = [
     "langchain[google-genai]",
     "langgraph-checkpoint-postgres>=0.2.0",
     "psycopg[binary]>=3.1.18",
+    "boto3",
+    "requests",
 ]
 
 [project.optional-dependencies]
@@ -30,6 +32,7 @@ dev = [
     "black>=24.4.0",
     "mypy>=1.10.0",
     "pre-commit>=3.7.0",
+    "types-requests",
 ]
 
 [tool.setuptools.packages.find]

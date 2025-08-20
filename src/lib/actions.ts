@@ -96,10 +96,11 @@ export async function uploadImageToS3(
       Body: buffer,
       ContentType: file.type,
       Metadata: {
-        originalName: file.name,
+        title: file.name,
         imageId: imageId,
         userId: userId,
         uploadedAt: new Date().toISOString(),
+        type: "uploaded",
       },
     });
 
