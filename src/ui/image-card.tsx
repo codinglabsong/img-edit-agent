@@ -49,7 +49,7 @@ export default function ImageCard({
     >
       {/* Selection Indicator */}
       <div
-        className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center
+        className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center border border-white/50
     ${isSelected ? "bg-blue-600" : "bg-gray-600"}`}
       >
         <svg
@@ -68,7 +68,7 @@ export default function ImageCard({
       {/* Download Button */}
       <button
         onClick={handleDownload}
-        className="cursor-pointer absolute top-3 left-3 w-7 h-7 bg-gray-600 hover:bg-gray-800 border border-white/10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 backdrop-blur-sm z-10"
+        className="cursor-pointer absolute top-3 left-3 w-7 h-7 bg-gray-600 hover:bg-gray-800 border border-white/50 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 backdrop-blur-sm z-10"
         aria-label="Download image"
         disabled={!image.url}
       >

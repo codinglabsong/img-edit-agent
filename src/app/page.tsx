@@ -9,7 +9,9 @@ import type { Message, ImageItem } from "@/lib/types";
 const INITIAL_MESSAGE: Message = {
   id: "initial-message",
   content:
-    "Hello! I'm your AI image editing assistant. Upload an image and I'll help you edit it with AI. You can also ask me questions about your images or get editing suggestions!",
+    "Hi there. I'm Pablo, your AI image editing assistant. I was named after Pablo Picasso!\
+     Upload an image and ask how you want your images edited.\
+     You may select multiple images for me to refer to.",
   sender: "agent",
   timestamp: new Date("2024-01-01T00:00:00Z"), // Static timestamp for hydration
 };

@@ -141,11 +141,9 @@ export default function ChatInterface({
             </svg>
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-gray-200">
-              AI Assistant
-            </h3>
+            <h3 className="text-xl font-semibold text-gray-200">Pablo</h3>
             <p className="text-sm text-gray-400">
-              Ask how you want your images edited
+              Quick and studio-quality image editing at your fingertips
             </p>
           </div>
         </div>
@@ -167,8 +165,8 @@ export default function ChatInterface({
             >
               <div className="flex items-start gap-2">
                 {message.sender === "agent" && (
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
-                    AI
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-900 to-blue-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">
+                    P
                   </div>
                 )}
                 <div className="flex-1">
