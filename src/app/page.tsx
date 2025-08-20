@@ -13,7 +13,7 @@ const INITIAL_MESSAGE: Message = {
      Upload an image and ask how you want your images edited.\
      You may select multiple images for me to refer to.",
   sender: "agent",
-  timestamp: new Date("2024-01-01T00:00:00Z"), // Static timestamp for hydration
+  timestamp: new Date(), // Use current time instead of static timestamp
 };
 
 const SAMPLE_IMAGES: ImageItem[] = [

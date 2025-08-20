@@ -96,7 +96,11 @@ export default function ChatInterface({
 
   const formatTime = (date: Date) => {
     if (!isClient) return ""; // Don't render time on server to avoid hydration mismatch
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString(navigator.language, {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
   };
 
   const TypingIndicator = () => (
