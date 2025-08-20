@@ -1,4 +1,5 @@
 import atexit
+import logging
 import os
 import re
 from datetime import datetime
@@ -14,6 +15,10 @@ from llm.prompt import system_message
 from llm.tools import initialize_tools
 
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 # Global agent instance
 _agent_executor = None
@@ -116,11 +121,18 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
             agent_response = last_message["content"]
 
         # Check if any tools were used (image generation)
+        logger.info(f"Response keys: {response.keys()}")
+        logger.info(f"Has intermediate_steps: {'intermediate_steps' in response}")
         if "intermediate_steps" in response and response["intermediate_steps"]:
+            logger.info(f"Intermediate steps: {response['intermediate_steps']}")
             for step in response["intermediate_steps"]:
+                logger.info(f"Step: {step}")
+                logger.info(f"Step[0] type: {type(step[0])}")
+                logger.info(f"Step[0] str: {str(step[0])}")
                 if len(step) >= 2 and "generate_image" in str(step[0]):
                     # Extract image data from the tool result
                     tool_result = step[1]
+                    logger.info(f"Tool result: {tool_result}")
 
                     # Try multiple patterns to find the image ID
                     image_id = None
@@ -177,7 +189,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
                                 }
 
                             except Exception as e:
-                                print(f"Error getting S3 metadata: {e}")
+                                logger.error(f"Error getting S3 metadata: {e}")
                                 # Don't return image data if we can't get a valid URL
                                 generated_image_data = None
                                 # Add error message to agent response
