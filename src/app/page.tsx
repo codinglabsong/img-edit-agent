@@ -123,8 +123,8 @@ export default function Home() {
       const aiMessage = createMessage(apiResponse.response, "agent");
       addMessage(aiMessage);
 
-      // Handle generated image if present
-      if (apiResponse.generated_image) {
+      // Handle generated image if present and has valid URL
+      if (apiResponse.generated_image && apiResponse.generated_image.url) {
         const generatedImage: ImageItem = {
           id: apiResponse.generated_image.id,
           url: apiResponse.generated_image.url,

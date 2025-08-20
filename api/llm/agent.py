@@ -121,64 +121,68 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
                 if len(step) >= 2 and "generate_image" in str(step[0]):
                     # Extract image data from the tool result
                     tool_result = step[1]
-                    if "Image ID:" in tool_result:
-                        # Parse the image ID and title from the response
-                        image_id_match = re.search(r"Image ID: ([a-f0-9-]+)", tool_result)
-                        title_match = re.search(r"Title: (.+?)(?:\n|$)", tool_result)
 
-                        if image_id_match:
-                            image_id = image_id_match.group(1)
-                            title = title_match.group(1) if title_match else "Generated Image"
+                    # Try multiple patterns to find the image ID
+                    image_id = None
+                    title = "Generated Image"
 
-                            # Get metadata from S3
-                            import boto3
+                    # Pattern 1: "Image ID: uuid"
+                    match = re.search(r"Image ID: ([a-f0-9-]+)", tool_result)
+                    if match:
+                        image_id = match.group(1)
 
-                            s3_client = boto3.client(
-                                "s3",
-                                region_name=os.environ.get("AWS_REGION", "us-east-1"),
-                                aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-                                aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-                            )
+                    # Pattern 2: "ID: uuid"
+                    if not image_id:
+                        match = re.search(r"ID: ([a-f0-9-]+)", tool_result)
+                        if match:
+                            image_id = match.group(1)
 
-                            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
-                            if bucket_name:
-                                try:
-                                    # Get metadata from S3
-                                    metadata_response = s3_client.head_object(Bucket=bucket_name, Key=f"users/{user_id}/images/{image_id}")
-                                    metadata = metadata_response.get("Metadata", {})
+                    # Extract title if present
+                    title_match = re.search(r"Title: (.+?)(?:\n|$)", tool_result)
+                    if title_match:
+                        title = title_match.group(1)
 
-                                    # Generate presigned URL
-                                    presigned_url = s3_client.generate_presigned_url(
-                                        "get_object",
-                                        Params={
-                                            "Bucket": bucket_name,
-                                            "Key": f"users/{user_id}/images/{image_id}",
-                                        },
-                                        ExpiresIn=7200,  # 2 hours
-                                    )
+                    if image_id:
+                        # Get metadata from S3
+                        import boto3
 
-                                    generated_image_data = {
-                                        "id": image_id,
-                                        "url": presigned_url,
-                                        "title": metadata.get("title", title),
-                                        "description": f"AI-generated image: {metadata.get('generationPrompt', 'Based on your request')}",
-                                        "timestamp": metadata.get("uploadedAt", datetime.now().isoformat()),
-                                        "type": "generated",
-                                    }
-                                except Exception as e:
-                                    print(f"Error getting S3 metadata: {e}")
-                                    # Fallback to basic data
-                                    generated_image_data = {
-                                        "id": image_id,
-                                        "url": "",  # Will be empty if we can't generate URL
-                                        "title": title,
-                                        "description": "AI-generated image",
-                                        "timestamp": datetime.now().isoformat(),
-                                        "type": "generated",
-                                    }
-                                    # Add error message to agent response
-                                    agent_response += "\n\n⚠️ Note: I generated the image successfully,\
-                                        but there was an issue retrieving it from the database."
+                        s3_client = boto3.client(
+                            "s3",
+                            region_name=os.environ.get("AWS_REGION", "us-east-1"),
+                            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+                            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+                        )
+
+                        bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+                        if bucket_name:
+                            try:
+                                # Get metadata from S3
+                                metadata_response = s3_client.head_object(Bucket=bucket_name, Key=f"users/{user_id}/images/{image_id}")
+                                metadata = metadata_response.get("Metadata", {})
+
+                                # Generate presigned URL
+                                presigned_url = s3_client.generate_presigned_url(
+                                    "get_object",
+                                    Params={"Bucket": bucket_name, "Key": f"users/{user_id}/images/{image_id}"},
+                                    ExpiresIn=7200,  # 2 hours
+                                )
+
+                                generated_image_data = {
+                                    "id": image_id,
+                                    "url": presigned_url,
+                                    "title": metadata.get("title", title),
+                                    "description": f"AI-generated image: {metadata.get('generationPrompt', 'Based on your request')}",
+                                    "timestamp": metadata.get("uploadedAt", datetime.now().isoformat()),
+                                    "type": "generated",
+                                }
+
+                            except Exception as e:
+                                print(f"Error getting S3 metadata: {e}")
+                                # Don't return image data if we can't get a valid URL
+                                generated_image_data = None
+                                # Add error message to agent response
+                                agent_response += "\n\n⚠️ Note: I generated the image successfully, \
+                                                    but there was an issue retrieving it from the database. Please try again."
 
     return agent_response, generated_image_data
 

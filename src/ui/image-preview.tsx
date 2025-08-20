@@ -24,7 +24,7 @@ export default function ImagePreview({ imageUrl }: ImagePreviewProps) {
 
   return (
     <div className="flex justify-center items-center w-full aspect-square border rounded-lg bg-gray-300 shadow-sm">
-      {imageUrl && !imageError ? (
+      {imageUrl && imageUrl.trim() !== "" && !imageError ? (
         <img
           src={imageUrl}
           alt="Generated image"
