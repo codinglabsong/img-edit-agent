@@ -215,15 +215,8 @@ export default function Home() {
     // Set loading state
     setIsLoading(true);
 
-    // Get AI response
+    // Send automatic template response
     try {
-      // const apiResponse = await sendChatMessage({
-      //   message: uploadMessage,
-      //   selected_images: [],
-      //   user_id: userId,
-      // });
-
-      // const aiMessage = createMessage(apiResponse.response, "agent");
       const aiMessage = createMessage(
         `"${file.name}" was uploaded successfully! Now select the images you want to edit and ask away!`,
         "agent",
@@ -261,7 +254,9 @@ export default function Home() {
         {/* Image Gallery */}
         <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-200">Your Images</h2>
+            <h2 className="text-xl font-semibold text-gray-200">
+              Your Gallery
+            </h2>
             {selectedImages.size === 0 ? (
               <p className="text-sm text-gray-400">
                 Click to select images for editing
@@ -290,6 +285,8 @@ export default function Home() {
                   onSelect={handleImageSelection}
                 />
               ))}
+              {/* add some space at the end to not interfere with ImageCard hover animation */}
+              <div>-</div>
             </div>
           </div>
         </div>

@@ -41,7 +41,10 @@ export default function ChatInterface({
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll if there are more than 1 message (don't scroll on initial load)
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
