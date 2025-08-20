@@ -78,7 +78,6 @@ def initialize_tools():
                 )
 
         except Exception as e:
-            # Clear image data from memory even if upload fails
             return f"Image generated but failed to save to storage: {str(e)}"
 
         finally:
