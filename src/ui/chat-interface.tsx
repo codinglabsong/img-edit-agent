@@ -20,11 +20,21 @@ export default function ChatInterface({
 }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [shouldFocus, setShouldFocus] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Focus input when shouldFocus is true
+  useEffect(() => {
+    if (shouldFocus && inputRef.current && !isLoading) {
+      inputRef.current.focus();
+      setShouldFocus(false);
+    }
+  }, [shouldFocus, isLoading]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,22 +49,42 @@ export default function ChatInterface({
     if (inputMessage.trim() && !isLoading) {
       onSendMessage(inputMessage.trim());
       setInputMessage("");
+      // Set flag to focus input after component updates
+      setShouldFocus(true);
     }
+  };
+
+  const validateImageFile = (file: File): boolean => {
+    // Check file type
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please select a valid image file (JPEG, PNG, GIF, or WebP).");
+      return false;
+    }
+
+    // Check file size (10MB = 10 * 1024 * 1024 bytes)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      alert("Image size cannot exceed 10MB. Please choose a smaller image.");
+      return false;
+    }
+
+    return true;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (10MB = 10 * 1024 * 1024 bytes)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-      if (file.size > maxSize) {
-        alert("Image size cannot exceed 10MB. Please choose a smaller image.");
-        e.target.value = "";
-        return;
-      }
-
-      if (onImageUpload) {
-        onImageUpload(file);
+      if (validateImageFile(file)) {
+        if (onImageUpload) {
+          onImageUpload(file);
+        }
       }
     }
     // Reset the input value so the same file can be selected again
@@ -177,7 +207,7 @@ export default function ChatInterface({
           <label className="flex items-center justify-center w-12 h-12 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105">
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
               onChange={handleImageUpload}
               className="hidden"
               disabled={isLoading}
@@ -199,6 +229,7 @@ export default function ChatInterface({
           </label>
 
           <input
+            ref={inputRef}
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}

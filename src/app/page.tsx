@@ -169,6 +169,9 @@ export default function Home() {
     // Add to images list immediately for UI responsiveness
     setImages((prev) => [...prev, uploadedImage]);
 
+    // Auto-select the uploaded image
+    setSelectedImages((prev) => new Set([imageId]));
+
     // Scroll to show the new image
     setTimeout(scrollToRight, 100);
 
