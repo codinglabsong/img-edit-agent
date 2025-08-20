@@ -13,3 +13,12 @@ export interface ImageItem {
   timestamp: Date;
   type: "uploaded" | "generated" | "sample";
 }
+
+export interface GeneratedImage {
+  id: string;
+  url: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  type: string;
+}

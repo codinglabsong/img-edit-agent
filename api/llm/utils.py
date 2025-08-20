@@ -6,9 +6,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 
-def upload_generated_image_to_s3(
-    image_data: bytes, image_id: str, user_id: str, prompt: str
-) -> Dict[str, Any]:
+def upload_generated_image_to_s3(image_data: bytes, image_id: str, user_id: str, prompt: str, title: str = "Generated Image") -> Dict[str, Any]:
     """
     Upload a generated image to S3.
 
@@ -17,9 +15,10 @@ def upload_generated_image_to_s3(
         image_id: Unique identifier for the image
         user_id: User identifier
         prompt: The prompt used to generate the image
+        title: Custom title for the image
 
     Returns:
-        Dict with success status and URL or error message
+        Dict with success status, URL, and metadata or error message
     """
     try:
         # Initialize S3 client
@@ -44,7 +43,7 @@ def upload_generated_image_to_s3(
             Body=image_data,
             ContentType="image/png",
             Metadata={
-                "title": "Generated Image",  # TODO: add title to the image provided by agent
+                "title": title,
                 "imageId": image_id,
                 "userId": user_id,
                 "uploadedAt": datetime.now().isoformat(),
@@ -60,7 +59,11 @@ def upload_generated_image_to_s3(
             ExpiresIn=7200,  # 2 hours
         )
 
-        return {"success": True, "url": presigned_url, "image_id": image_id}
+        # Get metadata from S3
+        metadata_response = s3_client.head_object(Bucket=bucket_name, Key=key)
+        metadata = metadata_response.get("Metadata", {})
+
+        return {"success": True, "url": presigned_url, "image_id": image_id, "metadata": metadata}
 
     except ClientError as e:
         return {"success": False, "error": str(e)}

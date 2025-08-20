@@ -18,9 +18,19 @@ class ChatRequest(BaseModel):
     user_id: Optional[str] = None
 
 
+class GeneratedImage(BaseModel):
+    id: str
+    url: str
+    title: str
+    description: str
+    timestamp: str
+    type: str = "generated"
+
+
 class ChatResponse(BaseModel):
     response: str
     status: str = "success"
+    generated_image: Optional[GeneratedImage] = None
 
 
 @app.get("/")
@@ -42,18 +52,24 @@ async def chat_endpoint(request: ChatRequest):
         request: ChatRequest containing message, selected_images, and user_id
 
     Returns:
-        ChatResponse with AI response and status.
+        ChatResponse with AI response, status, and optional generated image metadata.
     """
     try:
         # Use the LLM agent to get a response
         user_id = request.user_id or "default"
-        response = chat_with_agent(
+        response, generated_image_data = chat_with_agent(
             message=request.message,
             user_id=user_id,
             selected_images=request.selected_images,
         )
 
-        return ChatResponse(response=response, status="success")
+        # Create response with optional generated image
+        chat_response = ChatResponse(response=response, status="success")
+
+        if generated_image_data:
+            chat_response.generated_image = GeneratedImage(**generated_image_data)
+
+        return chat_response
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")

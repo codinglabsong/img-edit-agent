@@ -21,6 +21,7 @@ def initialize_tools():
         prompt: str,
         user_id: str,
         image_url: str,
+        title: str = "Generated Image",
     ) -> str:
         """
         Generate an image based on a prompt.
@@ -37,9 +38,7 @@ def initialize_tools():
         }
 
         # Generate image using Replicate
-        version = (
-            "stability-ai/sdxl:" "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
-        )
+        version = "stability-ai/sdxl:" "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
         output = replicate.run(
             version,
             input=input,
@@ -68,16 +67,18 @@ def initialize_tools():
         # Upload to S3
         try:
             s3_result = upload_generated_image_to_s3(
-                image_data=image_data, image_id=image_id, user_id=user_id, prompt=prompt
+                image_data=image_data,
+                image_id=image_id,
+                user_id=user_id,
+                prompt=prompt,
+                title=title,
             )
 
             if s3_result["success"]:
                 return f"Image generated successfully! User can find it his/her gallery. \
-                    Image ID: {image_id}"
+                    Image ID: {image_id}, Title: {title}"
             else:
-                return (
-                    f"Image generated but failed to save: {s3_result.get('error', 'Unknown error')}"
-                )
+                return f"Image generated but failed to save: {s3_result.get('error', 'Unknown error')}"
 
         except Exception as e:
             return f"Image generated but failed to save to storage: {str(e)}"

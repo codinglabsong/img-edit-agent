@@ -122,6 +122,24 @@ export default function Home() {
 
       const aiMessage = createMessage(apiResponse.response, "agent");
       addMessage(aiMessage);
+
+      // Handle generated image if present
+      if (apiResponse.generated_image) {
+        const generatedImage: ImageItem = {
+          id: apiResponse.generated_image.id,
+          url: apiResponse.generated_image.url,
+          title: apiResponse.generated_image.title,
+          description: apiResponse.generated_image.description,
+          timestamp: new Date(apiResponse.generated_image.timestamp),
+          type: "generated" as const,
+        };
+
+        // Add to images list
+        setImages((prev) => [...prev, generatedImage]);
+
+        // Scroll to show the new image
+        setTimeout(scrollToRight, 100);
+      }
     } catch (error) {
       console.error("Error getting AI response:", error);
       const fallbackMessage = createMessage(

@@ -6,6 +6,7 @@ import {
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import type { GeneratedImage } from "./types";
 
 interface ChatRequest {
   message: string;
@@ -23,6 +24,7 @@ interface ChatRequest {
 interface ChatResponse {
   response: string;
   status: string;
+  generated_image?: GeneratedImage;
 }
 
 interface UploadResponse {

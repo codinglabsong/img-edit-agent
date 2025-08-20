@@ -1,5 +1,7 @@
 import atexit
 import os
+import re
+from datetime import datetime
 from functools import lru_cache
 from typing import List, Optional
 
@@ -68,9 +70,7 @@ def get_agent():
     return _agent_executor
 
 
-def chat_with_agent(
-    message: str, user_id: str = "default", selected_images: Optional[List[dict]] = None
-) -> str:
+def chat_with_agent(message: str, user_id: str = "default", selected_images: Optional[List[dict]] = None) -> tuple[str, Optional[dict]]:
     """
     Send a message to the agent and get a response.
 
@@ -80,7 +80,7 @@ def chat_with_agent(
         selected_images: List of selected image objects (optional)
 
     Returns:
-        The agent's response as a string
+        Tuple of (agent_response, generated_image_data)
     """
     agent = get_agent()
 
@@ -89,9 +89,7 @@ def chat_with_agent(
     if selected_images and len(selected_images) > 0:
         image_context = "\n\nSelected Images:\n"
         for i, img in enumerate(selected_images, 1):
-            image_context += (
-                f"{i}. {img.get('title', 'Untitled')} (ID: {img.get('id', 'unknown')})\n"
-            )
+            image_context += f"{i}. {img.get('title', 'Untitled')} (ID: {img.get('id', 'unknown')})\n"
             image_context += f"   Type: {img.get('type', 'unknown')}\n"
             image_context += f"   Description: {img.get('description', 'No description')}\n"
             if img.get("url"):
@@ -103,20 +101,86 @@ def chat_with_agent(
     config = {"configurable": {"thread_id": user_id}}
 
     # Get response from agent
-    response = agent.invoke(
-        {"messages": [{"role": "user", "content": full_message}]}, config=config
-    )
+    response = agent.invoke({"messages": [{"role": "user", "content": full_message}]}, config=config)
 
     # Extract the last message from the agent
+    agent_response = "I'm sorry, I couldn't process your request. Please try again."
+    generated_image_data = None
+
     if response and "messages" in response and len(response["messages"]) > 0:
         last_message = response["messages"][-1]
         # Handle both AIMessage objects and dictionaries
         if hasattr(last_message, "content"):
-            return last_message.content
+            agent_response = last_message.content
         elif isinstance(last_message, dict) and "content" in last_message:
-            return last_message["content"]
+            agent_response = last_message["content"]
 
-    return "I'm sorry, I couldn't process your request. Please try again."
+        # Check if any tools were used (image generation)
+        if "intermediate_steps" in response and response["intermediate_steps"]:
+            for step in response["intermediate_steps"]:
+                if len(step) >= 2 and "generate_image" in str(step[0]):
+                    # Extract image data from the tool result
+                    tool_result = step[1]
+                    if "Image ID:" in tool_result:
+                        # Parse the image ID and title from the response
+                        image_id_match = re.search(r"Image ID: ([a-f0-9-]+)", tool_result)
+                        title_match = re.search(r"Title: (.+?)(?:\n|$)", tool_result)
+
+                        if image_id_match:
+                            image_id = image_id_match.group(1)
+                            title = title_match.group(1) if title_match else "Generated Image"
+
+                            # Get metadata from S3
+                            import boto3
+
+                            s3_client = boto3.client(
+                                "s3",
+                                region_name=os.environ.get("AWS_REGION", "us-east-1"),
+                                aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+                                aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+                            )
+
+                            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+                            if bucket_name:
+                                try:
+                                    # Get metadata from S3
+                                    metadata_response = s3_client.head_object(Bucket=bucket_name, Key=f"users/{user_id}/images/{image_id}")
+                                    metadata = metadata_response.get("Metadata", {})
+
+                                    # Generate presigned URL
+                                    presigned_url = s3_client.generate_presigned_url(
+                                        "get_object",
+                                        Params={
+                                            "Bucket": bucket_name,
+                                            "Key": f"users/{user_id}/images/{image_id}",
+                                        },
+                                        ExpiresIn=7200,  # 2 hours
+                                    )
+
+                                    generated_image_data = {
+                                        "id": image_id,
+                                        "url": presigned_url,
+                                        "title": metadata.get("title", title),
+                                        "description": f"AI-generated image: {metadata.get('generationPrompt', 'Based on your request')}",
+                                        "timestamp": metadata.get("uploadedAt", datetime.now().isoformat()),
+                                        "type": "generated",
+                                    }
+                                except Exception as e:
+                                    print(f"Error getting S3 metadata: {e}")
+                                    # Fallback to basic data
+                                    generated_image_data = {
+                                        "id": image_id,
+                                        "url": "",  # Will be empty if we can't generate URL
+                                        "title": title,
+                                        "description": "AI-generated image",
+                                        "timestamp": datetime.now().isoformat(),
+                                        "type": "generated",
+                                    }
+                                    # Add error message to agent response
+                                    agent_response += "\n\n⚠️ Note: I generated the image successfully,\
+                                        but there was an issue retrieving it from the database."
+
+    return agent_response, generated_image_data
 
 
 if __name__ == "__main__":
