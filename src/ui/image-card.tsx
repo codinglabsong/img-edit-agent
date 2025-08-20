@@ -14,11 +14,25 @@ export default function ImageCard({
   fallbackImageUrl,
   onSelect,
 }: ImageCardProps) {
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card selection
+
+    if (image.url) {
+      // Create a temporary link element to trigger download
+      const link = document.createElement("a");
+      link.href = image.url;
+      link.download = `${image.title || "image"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div
       onClick={() => onSelect(image.id)}
       className={`
-        flex-shrink-0 flex flex-col gap-3 mt-2
+        relative flex-shrink-0 flex flex-col gap-3 mt-2
         rounded-2xl
         bg-white/5 backdrop-blur-xl
         border-2 transition-all duration-300
@@ -35,11 +49,11 @@ export default function ImageCard({
     >
       {/* Selection Indicator */}
       <div
-        className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center
-    ${isSelected ? "bg-blue-600" : "bg-gray-500"}`}
+        className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center
+    ${isSelected ? "bg-blue-600" : "bg-gray-600"}`}
       >
         <svg
-          className={`w-4 h-4 ${isSelected ? "text-white" : "text-gray-700"}`}
+          className={`w-4 h-4 ${isSelected ? "text-white" : "text-gray-200"}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -50,6 +64,28 @@ export default function ImageCard({
           />
         </svg>
       </div>
+
+      {/* Download Button */}
+      <button
+        onClick={handleDownload}
+        className="cursor-pointer absolute top-3 left-3 w-7 h-7 bg-gray-600 hover:bg-gray-800 border border-white/10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 backdrop-blur-sm z-10"
+        aria-label="Download image"
+        disabled={!image.url}
+      >
+        <svg
+          className="w-4 h-4 text-gray-200"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+      </button>
 
       {/* Image Preview */}
       <div className="relative mt-8">
