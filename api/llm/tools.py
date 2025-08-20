@@ -6,7 +6,7 @@ import requests
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 
-from llm.utils import upload_generated_image_to_s3
+from llm.utils import store_tool_result, upload_generated_image_to_s3
 
 load_dotenv()
 
@@ -82,6 +82,10 @@ def initialize_tools():
             print(f"[TOOL] S3 upload result: {s3_result}")
 
             if s3_result["success"]:
+                # Store structured result for the agent to retrieve
+                tool_result = {"image_id": image_id, "title": title, "prompt": prompt, "success": True}
+                store_tool_result(user_id, "generate_image", tool_result)
+
                 result_msg = f"Image generated successfully! User can find it his/her gallery. \
                     Image ID: {image_id}, Title: {title}"
                 print(f"[TOOL] Returning success: {result_msg}")
@@ -111,7 +115,8 @@ if __name__ == "__main__":
         {
             "prompt": "A woman in a beautiful sunset over a calm ocean",
             "user_id": "123",
-            "image_url": "https://replicate.delivery/pbxt/N55l5TWGh8mSlNzW8usReoaNhGbFwvLeZR3TX1NL4pd2Wtfv/replicate-prediction-f2d25rg6gnrma0cq257vdw2n4c.png",
+            "image_url": "https://example.com/image.jpg",
+            "title": "Test Image",
         }
     )
     print(output)
