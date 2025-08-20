@@ -1,9 +1,11 @@
+import time
 from typing import Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from llm.agent import chat_with_agent
+from llm.connection_manager import _test_connection, get_checkpointer
 
 app = FastAPI(
     title="AI Image Editor API",
@@ -40,7 +42,19 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "ai-image-editor-api"}
+    """Enhanced health check that includes database connection status."""
+    try:
+        # Test database connection
+        checkpointer = get_checkpointer()
+        db_healthy = _test_connection(checkpointer)
+
+        return {
+            "status": "healthy" if db_healthy else "degraded",
+            "service": "ai-image-editor-api",
+            "database": {"status": "connected" if db_healthy else "disconnected", "timestamp": time.time()},
+        }
+    except Exception as e:
+        return {"status": "unhealthy", "service": "ai-image-editor-api", "database": {"status": "error", "error": str(e), "timestamp": time.time()}}
 
 
 @app.post("/chat", response_model=ChatResponse)
