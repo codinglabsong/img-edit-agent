@@ -1,5 +1,6 @@
 import logging
 import os
+import traceback
 from datetime import datetime
 from typing import List, Optional
 
@@ -30,21 +31,27 @@ def _get_agent():
 
     if _agent_executor is None:
         # Build LLM
-        print("[AGENT] building LLM")
-        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+        try:
+            print("[AGENT] building LLM")
+            llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
-        # Build tools
-        print("[AGENT] initializing tools")
-        tools = initialize_tools()
+            # Build tools
+            print("[AGENT] initializing tools")
+            tools = initialize_tools()
+            print(f"[AGENT] tools: {[type(t).__name__ for t in tools]}")
 
-        # Create agent with fresh checkpointer
-        print("[AGENT] creating agent")
-        _agent_executor = create_react_agent(
-            llm,
-            tools=tools,
-            prompt=system_message,
-            checkpointer=get_checkpointer(),
-        )
+            # Create agent with fresh checkpointer
+            print("[AGENT] creating agent")
+            _agent_executor = create_react_agent(
+                llm,
+                tools=tools,
+                prompt=system_message,
+                checkpointer=get_checkpointer(),
+            )
+        except Exception as e:
+            print(f"[AGENT] init failed: {repr(e)}")
+            traceback.print_exc()
+            raise
 
     return _agent_executor
 
