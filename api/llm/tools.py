@@ -163,8 +163,12 @@ def _coerce_tool_inputs(raw):
 
 
 def _generate_image_wrapper(inputs, config: dict):
+    print("[TOOLS] generate_image_wrapper called")
     data = _coerce_tool_inputs(inputs)
+    print(f"[TOOLS] coerced tool inputs: {data}")
     client_ip = (config or {}).get("configurable", {}).get("client_ip")
+    print(f"[TOOLS] client IP: {client_ip}")
+    print("[TOOLS] generating image")
     return _generate_image_core(
         prompt=data.prompt,
         user_id=data.user_id,
