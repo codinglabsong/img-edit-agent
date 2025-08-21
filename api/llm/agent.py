@@ -24,7 +24,7 @@ _agent_executor = None
 _request_count = 0
 
 
-def get_agent():
+def _get_agent():
     """Get or create the agent instance."""
     global _agent_executor
 
@@ -186,7 +186,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
         cleanup_old_tool_results()
 
     print(f"[AGENT] Starting chat_with_agent - user_id: {user_id}, message: {message[:100]}...")
-    agent = get_agent()
+    agent = _get_agent()
 
     # Prepare the message with context
     full_message = _build_message_with_context(message, selected_images, user_id)

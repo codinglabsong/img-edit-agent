@@ -15,7 +15,34 @@ def initialize_tools():
     """Initialize the tools for the agent."""
 
     @tool(
-        description="Generate an image based on a prompt",
+        description="""
+    Generate a high-quality image based on a detailed prompt. This tool creates stunning images using advanced AI generation techniques.
+
+    PARAMETERS:
+    - prompt (required): A detailed, artistic description of what to generate.\
+      Should include style, mood, lighting, composition, and specific details for best results.
+    - user_id (required): The unique identifier for the user requesting the image.
+    - image_url (required): URL of the source/reference image to base the generation on. Use empty string if no source image.
+    - title (optional): A concise, accurate title for the generated image. Defaults to "Generated Image" if not provided.
+
+    USAGE GUIDELINES:
+    - Always enhance the user's original prompt with artistic details, lighting, style, and mood unless they explicitly say don't.
+    - Include specific visual elements like "cinematic lighting", "soft bokeh", "golden hour", etc.
+    - Specify composition details like "close-up portrait", "wide landscape", "rule of thirds"
+    - Add color palettes and textures when relevant
+    - Use professional photography and art terminology for better results
+
+    EXAMPLE ENHANCED PROMPTS:
+    - User: "a cat" → Enhanced: "A majestic orange tabby cat with emerald green eyes, sitting regally in soft golden hour lighting,\
+        shallow depth of field with blurred garden background, professional portrait photography style"
+    - User: "sunset" → Enhanced: "A breathtaking sunset over calm ocean waters, vibrant orange and purple sky with dramatic clouds,\
+        silhouetted palm trees in foreground, cinematic wide-angle composition with warm golden lighting"
+
+    LIMITATIONS:
+    - Can only generate ONE image per request
+    - Requires a source image URL
+    - Generation may take 10-30 seconds
+    """,
     )
     def generate_image(
         prompt: str,
