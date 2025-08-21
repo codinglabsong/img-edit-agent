@@ -123,7 +123,9 @@ export default function ImageCard({
 
       {/* Image Info */}
       <div className="space-y-2">
-        <h3 className="font-semibold text-gray-300 text-lg">{image.title}</h3>
+        <h3 className="font-semibold text-gray-300 text-lg whitespace-nowrap overflow-hidden">
+          <span className="inline-block animate-marquee">{image.title}</span>
+        </h3>
         <div className="max-h-20 overflow-auto rounded-lg bg-black/20 backdrop-blur-xl border border-white/10 p-3 minimal-scrollbar">
           <p className="text-sm leading-relaxed text-gray-300">
             {image.description}
