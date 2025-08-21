@@ -19,10 +19,11 @@ def initialize_tools():
     Generate a high-quality image based on a detailed prompt. This tool creates stunning images using advanced AI generation techniques.
 
     PARAMETERS:
-    - prompt (required): A detailed, artistic description of what to generate.\
-      Should include style, mood, lighting, composition, and specific details for best results.
+    - prompt (required): A detailed description of what to generate.\
+      Should include style, mood, lighting, composition, and specific details for best results.\
+      Still be concise and to the point.
     - user_id (required): The unique identifier for the user requesting the image.
-    - image_url (required): URL of the source/reference image to base the generation on. Use empty string if no source image.
+    - image_url (required): URL of the source/reference image to base the generation on.
     - title (optional): A concise, accurate title for the generated image. Defaults to "Generated Image" if not provided.
 
     USAGE GUIDELINES:
@@ -55,32 +56,45 @@ def initialize_tools():
         """
         print(f"[TOOL] generate_image called with prompt: {prompt[:50]}..., user_id: {user_id}, image_url: {image_url[:50]}...")
         input = {
-            "width": 768,
-            "height": 768,
             "prompt": prompt,
-            "refine": "expert_ensemble_refiner",
-            "apply_watermark": False,
-            "num_inference_steps": 25,
-            "prompt_strength": 0.5,
-            "image": image_url,
+            "input_image": image_url,
+            "output_format": "png",
         }
 
         # Generate image using Replicate
         print(f"[TOOL] Calling Replicate with input: {input}")
-        version = "stability-ai/sdxl:" "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc"
         output = replicate.run(
-            version,
+            "black-forest-labs/flux-kontext-pro",
             input=input,
         )
         print(f"[TOOL] Replicate output: {output}")
+        print(f"[TOOL] Output type: {type(output)}")
+        print(f"[TOOL] Output length: {len(output) if hasattr(output, '__len__') else 'N/A'}")
 
         # Check if generation was successful
-        if not output or len(output) == 0:
+        if not output or (hasattr(output, "__len__") and len(output) == 0):
             print("[TOOL] Replicate generation failed - no output")
             return "Failed to generate image. Please try again."
 
-        generated_image_url = output[0] if isinstance(output, list) else output
-        print(f"[TOOL] Generated image URL: {generated_image_url}")
+        # Handle Flux Kontext Pro output format
+        try:
+            # Flux Kontext Pro returns an object with .url() method
+            generated_image_url = output.url()
+            print(f"[TOOL] Extracted URL using output.url(): {generated_image_url}")
+        except AttributeError:
+            # Fallback for unexpected output formats
+            print(f"[TOOL] No .url() method found, output type: {type(output)}")
+            if isinstance(output, list):
+                generated_image_url = output[0]
+                print(f"[TOOL] Fallback: Extracted URL from list: {generated_image_url}")
+            elif isinstance(output, str):
+                generated_image_url = output
+                print(f"[TOOL] Fallback: Using direct string URL: {generated_image_url}")
+            else:
+                print(f"[TOOL] Unexpected output type: {type(output)}, trying to convert to string")
+                generated_image_url = str(output)
+
+        print(f"[TOOL] Final generated image URL: {generated_image_url}")
 
         # Download the generated image
         image_data: Optional[bytes] = None
