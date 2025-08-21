@@ -77,15 +77,31 @@ def initialize_tools():
 
         # Handle Flux Kontext Pro output format
         image_data: Optional[bytes] = None
-        try:
-            # Flux Kontext Pro returns an object that can be used directly as image data
-            # and also has a .url() method for the URL
-            generated_image_url = output.url()
-            print(f"[TOOL] Extracted URL using output.url(): {generated_image_url}")
+        generated_image_url: str = ""
 
-            # Get the image data directly from the output object
-            image_data = output.read()
-            print(f"[TOOL] Got image data directly from output, size: {len(image_data) if image_data else 0} bytes")
+        try:
+            # Check if output is a string (direct URL) or an object with methods
+            if isinstance(output, str):
+                # Output is a direct URL string
+                generated_image_url = output
+                print(f"[TOOL] Output is direct URL string: {generated_image_url}")
+
+                # Download the image from the URL
+                import requests
+
+                response = requests.get(generated_image_url)
+                response.raise_for_status()
+                image_data = response.content
+                print(f"[TOOL] Downloaded image data from URL, size: {len(image_data)} bytes")
+
+            else:
+                # Output is an object with .url() and .read() methods
+                generated_image_url = output.url()
+                print(f"[TOOL] Extracted URL using output.url(): {generated_image_url}")
+
+                # Get the image data directly from the output object
+                image_data = output.read()
+                print(f"[TOOL] Got image data directly from output, size: {len(image_data) if image_data else 0} bytes")
 
         except AttributeError as e:
             print(f"[TOOL] Error accessing output methods: {e}")
