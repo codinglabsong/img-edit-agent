@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  // Exclude trash directory from build
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ["**/trash/**", "**/api/**"],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
