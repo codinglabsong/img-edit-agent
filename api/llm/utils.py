@@ -6,6 +6,9 @@ from typing import Any, Dict, Optional
 import boto3
 from botocore.exceptions import ClientError
 
+from llm.connection_manager import get_checkpointer
+
+# ------------------------- Agent's tool related utils -------------------------
 # User-specific storage for tool results (thread-safe)
 _user_tool_results: Dict[str, Dict] = {}
 _storage_lock = Lock()
@@ -98,6 +101,7 @@ def cleanup_old_tool_results(max_age_hours: int = 24) -> None:
             print(f"[STORAGE] Cleaned up {len(keys_to_remove)} old tool results")
 
 
+# ------------------------- S3 Upload of images -------------------------
 def upload_generated_image_to_s3(image_data: bytes, image_id: str, user_id: str, prompt: str, title: str = "Generated Image") -> Dict[str, Any]:
     """
     Upload a generated image to S3.
@@ -157,3 +161,124 @@ def upload_generated_image_to_s3(image_data: bytes, image_id: str, user_id: str,
         return {"success": False, "error": str(e)}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+# ------------------------- IP Generation Count and Guardrails -------------------------
+
+
+def get_ip_generation_count(ip_address: str) -> int:
+    """
+    Query the database for IP address generation count for the current week.
+
+    Args:
+        ip_address: The IP address to query
+
+    Returns:
+        generation_count
+        If no data found, returns 0
+    """
+    try:
+        checkpointer = get_checkpointer()
+
+        # Get the start of the current week (Monday)
+        now = datetime.now()
+        start_of_week = now - timedelta(days=now.weekday())
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # Query the rate_limits table for this IP in current week
+        # Using a simple SQL query to get the data
+        with checkpointer.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT generation_count
+                FROM rate_limits
+                WHERE ip_address = %s AND week_start = %s
+            """,
+                (ip_address, start_of_week.date()),
+            )
+
+            row = cursor.fetchone()
+
+        if row:
+            count = row.get("generation_count")
+            print(f"[UTILS] IP {ip_address}: {count} generations already made this week")
+            return int(count)
+
+        print(f"[UTILS] IP {ip_address}: No data found")
+        return 0
+
+    except Exception as e:
+        print(f"[UTILS] Error querying IP generation data: {e}")
+        return 0
+
+
+def create_rate_limits_table():
+    """
+    Create the rate_limits table if it doesn't exist.
+    """
+    try:
+        from llm.connection_manager import get_checkpointer
+
+        checkpointer = get_checkpointer()
+
+        with checkpointer.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS rate_limits (
+                    id SERIAL PRIMARY KEY,
+                    ip_address VARCHAR(45) NOT NULL,
+                    week_start DATE NOT NULL,
+                    generation_count INTEGER DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(ip_address, week_start)
+                )
+            """
+            )
+            checkpointer.conn.commit()
+            print("[UTILS] Rate limits table created/verified successfully")
+
+    except Exception as e:
+        print(f"[UTILS] Error creating rate limits table: {e}")
+
+
+def create_or_update_ip_generation_count(ip_address: str) -> bool:
+    """
+    Update the generation count for an IP address, or create a new one if it doesn't exist.
+
+    Args:
+        ip_address: The IP address to update
+
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        from llm.connection_manager import get_checkpointer
+
+        checkpointer = get_checkpointer()
+
+        # Get the start of the current week (Monday)
+        now = datetime.now()
+        start_of_week = now - timedelta(days=now.weekday())
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        with checkpointer.conn.cursor() as cursor:
+            # Use UPSERT to either insert new record or update existing one
+            cursor.execute(
+                """
+                INSERT INTO rate_limits (ip_address, week_start, generation_count, last_updated)
+                VALUES (%s, %s, 1, %s)
+                ON CONFLICT (ip_address, week_start)
+                DO UPDATE SET
+                    generation_count = rate_limits.generation_count + 1,
+                    last_updated = EXCLUDED.last_updated
+            """,
+                (ip_address, start_of_week.date(), now.isoformat()),
+            )
+
+            checkpointer.conn.commit()
+            print(f"[UTILS] Created or Updated generation count for IP {ip_address}")
+            return True
+
+    except Exception as e:
+        print(f"[UTILS] Error updating IP generation count: {e}")
+        return False

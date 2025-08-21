@@ -1,16 +1,30 @@
 import time
+from contextlib import asynccontextmanager
 from typing import Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
 from llm.agent import chat_with_agent
 from llm.connection_manager import _test_connection, get_checkpointer
+from llm.utils import create_rate_limits_table
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for FastAPI app startup and shutdown."""
+    # Startup
+    create_rate_limits_table()
+    yield
+    # Shutdown (if needed)
+    print("[FASTAPI] App shutting down...")
+
 
 app = FastAPI(
     title="AI Image Editor API",
     description="API for AI-powered image editing assistant",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
@@ -58,7 +72,7 @@ async def health_check():
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest, http_request: Request):
     """
     Chat endpoint that receives user messages and returns AI responses.
 
@@ -69,10 +83,17 @@ async def chat_endpoint(request: ChatRequest):
         ChatResponse with AI response, status, and optional generated image metadata.
     """
     try:
+        # Extract client IP
+        client_ip = http_request.client.host if http_request.client else "unknown"
+        if client_ip == "unknown":
+            return ChatResponse(response="Error: Client IP not found", status="error")
+        print(f"[FASTAPI] Client IP: {client_ip}")
+
         # Use the LLM agent to get a response
         user_id = request.user_id or "default"
         response, generated_image_data = chat_with_agent(
             message=request.message,
+            client_ip=client_ip,
             user_id=user_id,
             selected_images=request.selected_images,
         )

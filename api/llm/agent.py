@@ -167,7 +167,12 @@ def _process_tool_results(user_id: str) -> Optional[dict]:
     return None
 
 
-def chat_with_agent(message: str, user_id: str = "default", selected_images: Optional[List[dict]] = None) -> tuple[str, Optional[dict]]:
+def chat_with_agent(
+    message: str,
+    client_ip: str,
+    user_id: str = "default",
+    selected_images: Optional[List[dict]] = None,
+) -> tuple[str, Optional[dict]]:
     """
     Send a message to the agent and get a response.
 
@@ -175,7 +180,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
         message: The user's message
         user_id: Unique identifier for the user/thread
         selected_images: List of selected image objects (optional)
-
+        client_ip: IP address of the client
     Returns:
         Tuple of (agent_response, generated_image_data)
     """
@@ -194,7 +199,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
     full_message = _build_message_with_context(message, selected_images, user_id)
 
     # Configure thread ID for conversation continuity
-    config = {"configurable": {"thread_id": user_id}}
+    config = {"configurable": {"thread_id": user_id, "client_ip": client_ip}}
 
     # Get response from agent
     print(f"[AGENT] Invoking agent with config: {config}")
@@ -214,5 +219,5 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
 
 if __name__ == "__main__":
     # Test the agent
-    response = chat_with_agent("Hello! How can you help me with image editing?")
+    response = chat_with_agent("Hello! How can you help me with image editing?", "127.0.0.1")
     print(response)
