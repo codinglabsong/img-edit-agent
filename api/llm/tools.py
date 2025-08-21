@@ -43,7 +43,7 @@ def initialize_tools():
     - Can only generate ONE image per request
     - Requires a source image URL
     - Generation may take 10-30 seconds
-    """,
+    """
     )
     def generate_image(
         prompt: str,
