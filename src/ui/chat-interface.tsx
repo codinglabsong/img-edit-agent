@@ -107,8 +107,8 @@ export default function ChatInterface({
     <div className="flex justify-start">
       <div className="bg-gray-600/60 text-gray-200 rounded-2xl px-4 py-3 shadow-lg">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
-            AI
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-900 to-blue-600 flex items-center justify-center text-xs font-bold text-white">
+            P
           </div>
           <div className="flex space-x-1">
             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>

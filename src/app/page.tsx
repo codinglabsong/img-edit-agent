@@ -18,29 +18,29 @@ const INITIAL_MESSAGE: Message = {
 
 const SAMPLE_IMAGES: ImageItem[] = [
   {
-    id: "img_001",
-    url: null,
-    title: "Sample Image 1",
+    id: "sample_001",
+    url: "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/nyc_bw.png",
+    title: "New York City at Night",
     description:
-      "A beautiful landscape with mountains and a serene lake reflecting the sky.",
+      "A black and white vintage photograph of New York City's skyline with the Empire State and Chrysler Buildings, film grain texture, and a timeless, classic feel.",
     timestamp: new Date(Date.now() - 86400000), // 1 day ago
     type: "sample",
   },
   {
-    id: "img_002",
-    url: null,
-    title: "Sample Image 2",
+    id: "sample_002",
+    url: "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/seoul_night.png",
+    title: "Seoul Night",
     description:
-      "Urban cityscape with modern architecture and vibrant street life.",
+      "A high-quality Canon night photo of a traditional street in Seoul, glowing street lamps lighting hanok houses, with Namsan Tower and modern skyscrapers in the distance.",
     timestamp: new Date(Date.now() - 43200000), // 12 hours ago
     type: "sample",
   },
   {
-    id: "img_003",
-    url: null,
-    title: "Sample Image 3",
+    id: "sample_003",
+    url: "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/picasso_woman.png",
+    title: "Picasso Portrait",
     description:
-      "Portrait photography with dramatic lighting and artistic composition.",
+      "An abstract Picasso-style portrait of a face in cool blue and teal tones, with geometric shapes, bold outlines, and a smooth modern finish.",
     timestamp: new Date(),
     type: "sample",
   },

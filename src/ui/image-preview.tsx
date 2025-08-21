@@ -23,12 +23,12 @@ export default function ImagePreview({ imageUrl }: ImagePreviewProps) {
   };
 
   return (
-    <div className="flex justify-center items-center w-full aspect-square border rounded-xl bg-gray-300 shadow-sm">
+    <div className="flex justify-center items-center w-full aspect-square border rounded-xl inset-0 bg-gradient-to-t from-gray-300/30 to-gray-400/30 shadow-sm">
       {imageUrl && imageUrl.trim() !== "" && !imageError ? (
         <img
           src={imageUrl}
           alt="Generated image"
-          className="object-contain w-full h-full rounded-lg"
+          className="object-contain w-full h-full rounded-xl"
           onLoad={handleImageLoad}
           onError={handleImageError}
         />
