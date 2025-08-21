@@ -176,7 +176,9 @@ def _generate_image_wrapper(inputs, config: dict):
 
 def initialize_tools():
     """Initialize the tools for the agent."""
+    print("[TOOLS] building generate_image tool")
     generate_image = RunnableLambda(_generate_image_wrapper)
+    print("[TOOLS] setting name and description for generate_image tool")
     generate_image.name = "generate_image"
     generate_image.description = generate_image_tool_description
     return [generate_image]
