@@ -15,7 +15,10 @@ def initialize_tools():
 
     @tool(
         description="""
-    Generate a high-quality image based on a detailed prompt. This tool creates stunning images using advanced AI generation techniques.
+    Generate a high-quality image based on a detailed prompt.
+    This tool creates stunning images using advanced AI generation techniques.
+    IMPORTANT: Use this tool only ONCE per user request. If the tool returns and error or has issues, just say so.\
+        Don't use this tool multiple times for the same user request or message.
 
     PARAMETERS:
     - prompt (required): A detailed description of what to generate.\
@@ -77,37 +80,22 @@ def initialize_tools():
 
         # Handle Flux Kontext Pro output format
         image_data: Optional[bytes] = None
-        generated_image_url: str = ""
 
         try:
-            # Check if output is a string (direct URL) or an object with methods
-            if isinstance(output, str):
-                # Output is a direct URL string
-                generated_image_url = output
-                print(f"[TOOL] Output is direct URL string: {generated_image_url}")
+            # Flux Kontext Pro returns a string URL
+            generated_image_url = str(output)
+            print(f"[TOOL] Generated image URL: {generated_image_url}")
 
-                # Download the image from the URL
-                import requests
+            # Download the image from the URL
+            import requests
 
-                response = requests.get(generated_image_url)
-                response.raise_for_status()
-                image_data = response.content
-                print(f"[TOOL] Downloaded image data from URL, size: {len(image_data)} bytes")
+            response = requests.get(generated_image_url)
+            response.raise_for_status()
+            image_data = response.content
+            print(f"[TOOL] Downloaded image data, size: {len(image_data)} bytes")
 
-            else:
-                # Output is an object with .url() and .read() methods
-                generated_image_url = output.url()
-                print(f"[TOOL] Extracted URL using output.url(): {generated_image_url}")
-
-                # Get the image data directly from the output object
-                image_data = output.read()
-                print(f"[TOOL] Got image data directly from output, size: {len(image_data) if image_data else 0} bytes")
-
-        except AttributeError as e:
-            print(f"[TOOL] Error accessing output methods: {e}")
-            return f"Failed to process generated image: {str(e)}"
         except Exception as e:
-            print(f"[TOOL] Unexpected error processing output: {e}")
+            print(f"[TOOL] Error processing output: {e}")
             return f"Failed to process generated image: {str(e)}"
 
         # Check if we successfully got image data
