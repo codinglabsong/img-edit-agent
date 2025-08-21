@@ -196,6 +196,7 @@ def chat_with_agent(
     agent = _get_agent()
 
     # Prepare the message with context
+    print("[AGENT] building message with context")
     full_message = _build_message_with_context(message, selected_images, user_id)
 
     # Configure thread ID for conversation continuity
