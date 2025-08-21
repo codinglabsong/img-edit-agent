@@ -30,12 +30,15 @@ def _get_agent():
 
     if _agent_executor is None:
         # Build LLM
+        print("[AGENT] building LLM")
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
         # Build tools
+        print("[AGENT] building tools")
         tools = initialize_tools()
 
         # Create agent with fresh checkpointer
+        print("[AGENT] creating agent")
         _agent_executor = create_react_agent(
             llm,
             tools=tools,
