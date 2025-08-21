@@ -161,6 +161,8 @@ def _process_tool_results(user_id: str) -> Optional[dict]:
     if tool_result:
         print(f"[AGENT] Found tool result: {tool_result}")
         return _process_generated_image(user_id, tool_result)
+    else:
+        print(f"[AGENT] No tool result found for user {user_id}")
 
     return None
 

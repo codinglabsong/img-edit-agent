@@ -2,7 +2,6 @@ import uuid
 from typing import Optional
 
 import replicate
-import requests
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 
@@ -77,41 +76,34 @@ def initialize_tools():
             return "Failed to generate image. Please try again."
 
         # Handle Flux Kontext Pro output format
-        try:
-            # Flux Kontext Pro returns an object with .url() method
-            generated_image_url = output.url()
-            print(f"[TOOL] Extracted URL using output.url(): {generated_image_url}")
-        except AttributeError:
-            # Fallback for unexpected output formats
-            print(f"[TOOL] No .url() method found, output type: {type(output)}")
-            if isinstance(output, list):
-                generated_image_url = output[0]
-                print(f"[TOOL] Fallback: Extracted URL from list: {generated_image_url}")
-            elif isinstance(output, str):
-                generated_image_url = output
-                print(f"[TOOL] Fallback: Using direct string URL: {generated_image_url}")
-            else:
-                print(f"[TOOL] Unexpected output type: {type(output)}, trying to convert to string")
-                generated_image_url = str(output)
-
-        print(f"[TOOL] Final generated image URL: {generated_image_url}")
-
-        # Download the generated image
         image_data: Optional[bytes] = None
         try:
-            response = requests.get(generated_image_url)
-            response.raise_for_status()
-            image_data = response.content  # get the actual image bytes in content into memory
-            # Close the response to free up resources
-            response.close()
+            # Flux Kontext Pro returns an object that can be used directly as image data
+            # and also has a .url() method for the URL
+            generated_image_url = output.url()
+            print(f"[TOOL] Extracted URL using output.url(): {generated_image_url}")
+
+            # Get the image data directly from the output object
+            image_data = output.read()
+            print(f"[TOOL] Got image data directly from output, size: {len(image_data) if image_data else 0} bytes")
+
+        except AttributeError as e:
+            print(f"[TOOL] Error accessing output methods: {e}")
+            return f"Failed to process generated image: {str(e)}"
         except Exception as e:
-            return f"Failed to download generated image: {str(e)}"
+            print(f"[TOOL] Unexpected error processing output: {e}")
+            return f"Failed to process generated image: {str(e)}"
+
+        # Check if we successfully got image data
+        if image_data is None:
+            return "Failed to get image data from generation output"
 
         # Generate unique ID for the image
         image_id = str(uuid.uuid4())
 
         # Upload to S3
         print(f"[TOOL] Uploading to S3 with image_id: {image_id}")
+        print(f"[TOOL] Image data size: {len(image_data)} bytes")
         try:
             s3_result = upload_generated_image_to_s3(
                 image_data=image_data,
@@ -121,11 +113,14 @@ def initialize_tools():
                 title=title,
             )
             print(f"[TOOL] S3 upload result: {s3_result}")
+            print(f"[TOOL] S3 upload success: {s3_result.get('success', False)}")
 
             if s3_result["success"]:
                 # Store structured result for the agent to retrieve
                 tool_result = {"image_id": image_id, "title": title, "prompt": prompt, "success": True}
+                print(f"[TOOL] About to store tool result: {tool_result}")
                 store_tool_result(user_id, "generate_image", tool_result)
+                print("[TOOL] Tool result stored successfully")
 
                 result_msg = f"Image generated successfully! User can find it his/her gallery. \
                     Image ID: {image_id}, Title: {title}"
