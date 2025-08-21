@@ -1,5 +1,6 @@
 import ImagePreview from "@/ui/image-preview";
 import type { ImageItem } from "@/lib/types";
+import { downloadImage } from "@/lib/actions";
 
 interface ImageCardProps {
   image: ImageItem;
@@ -14,17 +15,45 @@ export default function ImageCard({
   fallbackImageUrl,
   onSelect,
 }: ImageCardProps) {
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card selection
 
-    if (image.url) {
-      // Create a temporary link element to trigger download
-      const link = document.createElement("a");
-      link.href = image.url;
-      link.download = `${image.title || "image"}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (!image.url) return;
+
+    try {
+      // Determine file extension from URL
+      let extension = "png";
+      if (image.url.includes(".")) {
+        const urlMatch = image.url.match(/\.(\w+)(?:[?#]|$)/);
+        if (urlMatch) {
+          extension = urlMatch[1];
+        }
+      }
+
+      const filename = `${image.title || "image"}.${extension}`;
+
+      // Use server action to download the image
+      const result = await downloadImage(image.url);
+
+      if (result.success && result.blob) {
+        // Create blob URL and trigger download
+        const url = window.URL.createObjectURL(result.blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error("Download failed:", result.error);
+        // Fallback to opening in new tab
+        window.open(image.url, "_blank");
+      }
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      // Fallback to opening in new tab
+      window.open(image.url, "_blank");
     }
   };
 

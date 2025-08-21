@@ -130,3 +130,28 @@ export async function uploadImageToS3(
     };
   }
 }
+
+export async function downloadImage(
+  imageUrl: string,
+): Promise<{ success: boolean; error?: string; blob?: Blob }> {
+  try {
+    const response = await fetch(imageUrl);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+
+    return {
+      success: true,
+      blob,
+    };
+  } catch (error) {
+    console.error("Error downloading image:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
