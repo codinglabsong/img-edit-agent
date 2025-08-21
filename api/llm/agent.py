@@ -46,7 +46,7 @@ def get_agent():
     return _agent_executor
 
 
-def _build_message_with_context(message: str, selected_images: Optional[List[dict]]) -> str:
+def _build_message_with_context(message: str, selected_images: Optional[List[dict]], user_id: str) -> str:
     """Build the full message with image context if provided."""
     if not selected_images or len(selected_images) == 0:
         return message
@@ -60,7 +60,7 @@ def _build_message_with_context(message: str, selected_images: Optional[List[dic
             image_context += f"   URL: {img.get('url')}\n"
         image_context += "\n"
 
-    return message + image_context
+    return message + image_context + f"\n\nUser ID: {user_id}"
 
 
 def _extract_agent_response(response) -> str:
@@ -189,7 +189,7 @@ def chat_with_agent(message: str, user_id: str = "default", selected_images: Opt
     agent = get_agent()
 
     # Prepare the message with context
-    full_message = _build_message_with_context(message, selected_images)
+    full_message = _build_message_with_context(message, selected_images, user_id)
 
     # Configure thread ID for conversation continuity
     config = {"configurable": {"thread_id": user_id}}
