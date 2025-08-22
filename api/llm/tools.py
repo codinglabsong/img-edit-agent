@@ -34,7 +34,7 @@ def _generate_image_core(
     print(f"[TOOL] generate_image called with prompt: {prompt[:50]}..., user_id: {user_id}, image_url: {image_url[:50]}...")
 
     # Check if the user has exceeded the generation limit
-    if get_ip_generation_count(client_ip) >= 10:
+    if get_ip_generation_count(client_ip) >= 2:
         print("[TOOL] User exceeded the generation limit of 10 this week.")
         return "Failed as user exceeded the max generation limit of 10 this week."
 
