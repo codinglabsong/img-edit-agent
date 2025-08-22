@@ -38,7 +38,7 @@ const SAMPLE_IMAGES: ImageItem[] = [
   {
     id: "sample_003",
     url: "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/picasso_woman.png",
-    title: "Picasso PortraitPicasso PortraitPicasso Portrait",
+    title: "Picasso Portrait",
     description:
       "An abstract Picasso-style portrait of a face in cool blue and teal tones, with geometric shapes, bold outlines, and a smooth modern finish.",
     timestamp: new Date(),
