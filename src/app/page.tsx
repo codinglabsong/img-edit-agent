@@ -3,15 +3,16 @@
 import { useState, useEffect } from "react";
 import ChatInterface from "@/ui/chat-interface";
 import ImageCard from "@/ui/image-card";
+import ExamplesDropdown from "@/ui/examples-dropdown";
 import { sendChatMessage, uploadImageToS3 } from "@/lib/actions";
 import type { Message, ImageItem } from "@/lib/types";
 
 const INITIAL_MESSAGE: Message = {
   id: "initial-message",
   content:
-    "Hi there. I'm Pablo, your AI image editing assistant. I was named after Pablo Picasso!\
-     Upload an image and ask how you want your images edited.\
-     You may select multiple images for me to refer to.",
+    "Hi there! I'm Pablo, your AI image-editing assistant.\
+     Upload an image or choose one from above, then tell me how you'd like it edited.\
+     You can even select multiple images for reference. 🎨✨",
   sender: "agent",
   timestamp: new Date(), // Use current time instead of static timestamp
 };
@@ -122,8 +123,17 @@ export default function Home() {
       selectedImageIds.includes(img.id),
     );
 
-    // Add user message (without image metadata)
-    const userMessage = createMessage(message, "user");
+    // Create message content with selected image references
+    let messageContent = message;
+    if (selectedImageObjects.length > 0) {
+      const imageReferences = selectedImageObjects
+        .map((img) => `📷 **${img.title}**`)
+        .join("\n");
+      messageContent = `${message}\n\n**Selected Images:**\n${imageReferences}`;
+    }
+
+    // Add user message with image metadata
+    const userMessage = createMessage(messageContent, "user");
     addMessage(userMessage);
 
     // Set loading state
@@ -187,7 +197,7 @@ export default function Home() {
     setImages((prev) => [...prev, uploadedImage]);
 
     // Auto-select the uploaded image
-    setSelectedImages((prev) => new Set([imageId]));
+    setSelectedImages(() => new Set([imageId]));
 
     // Scroll to show the new image
     setTimeout(scrollToRight, 100);
@@ -277,7 +287,7 @@ export default function Home() {
               </h2>
               {selectedImages.size === 0 ? (
                 <p className="text-sm text-gray-400 text-right">
-                  Select images for editing
+                  Select or Scroll
                 </p>
               ) : (
                 <div className="bg-blue-600/20 backdrop-blur-xl rounded-xl px-3 border border-blue-500/30">
@@ -314,14 +324,15 @@ export default function Home() {
             <div className="flex justify-center mt-4 gap-16">
               <button
                 onClick={scrollLeft}
-                className="text-2xl text-gray-400 hover:text-white transition-colors duration-200 font-bold"
+                className="text-2xl text-gray-100 hover:text-white transition-colors duration-200 font-bold"
                 aria-label="Scroll left"
               >
                 &lt;
               </button>
+
               <button
                 onClick={scrollRight}
-                className="text-2xl text-gray-400 hover:text-white transition-colors duration-200 font-bold"
+                className="text-2xl text-gray-100 hover:text-white transition-colors duration-200 font-bold"
                 aria-label="Scroll right"
               >
                 &gt;
@@ -329,8 +340,11 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Examples Dropdown */}
+          <ExamplesDropdown />
+
           {/* Chat Interface */}
-          <div className="h-[600px] bg-gray-700/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+          <div className="h-[600px] bg-gray-700/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
             <ChatInterface
               messages={messages}
               onSendMessage={handleChatMessage}

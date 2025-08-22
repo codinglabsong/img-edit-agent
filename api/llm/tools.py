@@ -38,7 +38,7 @@ def _generate_image_core(
         print("[TOOL] User exceeded the generation limit of 10 this week.")
         return "Failed as user exceeded the max generation limit of 10 this week."
 
-    use_sdxl = True
+    use_sdxl = False  # True for testing purposes
     if use_sdxl:
         input = {
             "width": 768,

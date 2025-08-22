@@ -8,23 +8,21 @@ interface ImagePreviewProps {
 
 export default function ImagePreview({ imageUrl }: ImagePreviewProps) {
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleImageLoad = () => {
-    setImageLoaded(true);
     setImageError(false);
     console.log("Image loaded successfully:", imageUrl);
   };
 
   const handleImageError = () => {
     setImageError(true);
-    setImageLoaded(false);
     console.error("Image failed to load:", imageUrl);
   };
 
   return (
     <div className="flex justify-center items-center w-full aspect-square border rounded-xl inset-0 bg-gradient-to-t from-gray-300/30 to-gray-400/30 shadow-sm">
       {imageUrl && imageUrl.trim() !== "" && !imageError ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={imageUrl}
           alt="Generated image"
