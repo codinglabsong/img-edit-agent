@@ -2,7 +2,7 @@ import time
 from contextlib import asynccontextmanager
 from typing import Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from llm.agent import chat_with_agent
@@ -72,7 +72,7 @@ async def health_check():
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest, http_request: Request):
+async def chat_endpoint(request: ChatRequest):
     """
     Chat endpoint that receives user messages and returns AI responses.
 
@@ -84,7 +84,7 @@ async def chat_endpoint(request: ChatRequest, http_request: Request):
     """
     try:
         # Extract client IP
-        client_ip = http_request.client.host if http_request.client else "unknown"
+        client_ip = request.client_ip if request.client_ip else "unknown"
         if client_ip == "unknown":
             return ChatResponse(response="Error: Client IP not found", status="error")
         print(f"[FASTAPI] Client IP: {client_ip}")

@@ -7,6 +7,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { GeneratedImage } from "./types";
+import { headers } from "next/headers";
 
 interface ChatRequest {
   message: string;
@@ -48,20 +49,35 @@ export async function sendChatMessage(
   request: ChatRequest,
 ): Promise<ChatResponse> {
   try {
+    const h = await headers();
+
+    // Try the common proxy headers in order of usefulness
+    const raw =
+      h.get("x-vercel-forwarded-for") || // Vercel
+      h.get("x-forwarded-for") || // generic proxies / load balancers
+      h.get("cf-connecting-ip") || // Cloudflare
+      h.get("x-real-ip") || // Nginx
+      "";
+
+    const client_ip = raw.split(",")[0]?.trim() || "unknown";
+
     const response = await fetch(`${HF_API_URL}/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(request),
+      body: JSON.stringify({
+        ...request,
+        client_ip: client_ip,
+      }),
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return data as ChatResponse;
+    const data = (await response.json()) as ChatResponse;
+    return data;
   } catch (error) {
     console.error("Error sending chat message:", error);
     // Fallback response in case of API failure
