@@ -32,6 +32,7 @@ class ChatRequest(BaseModel):
     message: str
     selected_images: Optional[List[Dict[str, str]]] = []
     user_id: Optional[str] = None
+    client_ip: str | None = None
 
 
 class GeneratedImage(BaseModel):
@@ -84,7 +85,8 @@ async def chat_endpoint(request: ChatRequest):
     """
     try:
         # Extract client IP
-        client_ip = request.client_ip if request.client_ip else "unknown"
+        print(request)
+        client_ip = request.client_ip or "unknown"
         if client_ip == "unknown":
             return ChatResponse(response="Error: Client IP not found", status="error")
         print(f"[FASTAPI] Client IP: {client_ip}")
