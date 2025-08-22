@@ -1,9 +1,9 @@
 import uuid
-from typing import Optional
+from typing import Dict, Optional
 
 import replicate
 from dotenv import load_dotenv
-from langchain_core.tools import StructuredTool
+from langchain_core.runnables import RunnableConfig, RunnableLambda
 from pydantic import BaseModel
 
 from llm.prompt import generate_image_tool_description
@@ -149,29 +149,45 @@ def _generate_image_core(
             del image_data
 
 
-def initialize_tools(client_ip: str):
+def _generate_image_callable(inputs: Dict[str, str], config: RunnableConfig):
+    # Normalize inputs whether dict or Pydantic
+    if hasattr(inputs, "model_dump"):
+        inputs = inputs.model_dump()
+    elif hasattr(inputs, "dict"):
+        inputs = inputs.dict()
+
+    # Pull the IP from the per-invoke config
+    cfg = config.get("configurable") or {}
+
+    ip = cfg.get("client_ip")
+    if not isinstance(ip, str) or not ip:
+        # Fail fast if it's absent or not a string
+        raise ValueError("client_ip is required in config.configurable and must be a non-empty string")
+
+    client_ip: str = ip
+
+    # Call your core with the IP
+    return _generate_image_core(
+        prompt=inputs["prompt"],
+        user_id=inputs["user_id"],
+        image_url=inputs["image_url"],
+        title=inputs.get("title", "Generated Image"),
+        client_ip=client_ip,
+    )
+
+
+def initialize_tools():
     """Initialize the tools for the agent."""
     print("[TOOLS] building generate_image tool")
 
-    def generate_image_func(
-        prompt: str,
-        user_id: str,
-        image_url: str,
-        title: str = "Generated Image",
-    ) -> str:
-        return _generate_image_core(
-            prompt=prompt,
-            user_id=user_id,
-            image_url=image_url,
-            title=title,
-            client_ip=client_ip,
-        )
+    # A Runnable that receives (inputs, config) every invoke
+    generate_image_runnable = RunnableLambda(_generate_image_callable)
 
-    generate_image_tool = StructuredTool.from_function(
-        func=generate_image_func,
+    # As agent creation API expects "tools", convert the runnable to a Tool:
+    generate_image_tool = generate_image_runnable.as_tool(
         name="generate_image",
         description=generate_image_tool_description,
-        args_schema=GenerateImageToolInput,  # optional: enforces/advertises schema
+        args_schema=GenerateImageToolInput,
     )
 
     return [generate_image_tool]
@@ -179,7 +195,7 @@ def initialize_tools(client_ip: str):
 
 if __name__ == "__main__":
     # Test the tool
-    generate_image = initialize_tools("127.0.0.1")[0]
+    generate_image = initialize_tools()[0]
     output = generate_image.invoke(
         {
             "prompt": "A woman in a beautiful sunset over a calm ocean",

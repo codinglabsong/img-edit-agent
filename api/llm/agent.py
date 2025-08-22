@@ -24,7 +24,7 @@ _agent_executor = None
 _request_count = 0
 
 
-def _get_agent(client_ip: str):
+def _get_agent():
     """Get or create the agent instance."""
     global _agent_executor
 
@@ -35,7 +35,7 @@ def _get_agent(client_ip: str):
 
         # Build tools
         print("[AGENT] initializing tools")
-        tools = initialize_tools(client_ip)
+        tools = initialize_tools()
 
         # Create agent with fresh checkpointer
         print("[AGENT] creating agent")
@@ -196,7 +196,7 @@ def chat_with_agent(
         cleanup_old_tool_results()
 
     print(f"[AGENT] Starting chat_with_agent - user_id: {user_id}, message: {message[:100]}...")
-    agent = _get_agent(client_ip)
+    agent = _get_agent()
 
     # Prepare the message with context
     print("[AGENT] building message with context")
