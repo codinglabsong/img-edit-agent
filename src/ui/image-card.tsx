@@ -123,14 +123,8 @@ export default function ImageCard({
 
       {/* Image Info */}
       <div className="space-y-2">
-        <h3 className="font-semibold text-gray-300 text-lg group relative">
-          <span className="block whitespace-nowrap overflow-hidden">
-            {image.title}
-          </span>
-          {/* Tooltip box for full title */}
-          <div className="absolute -top-2 left-0 bg-gray-800 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 max-w-xs break-words whitespace-normal shadow-xl border border-gray-600 backdrop-blur-sm">
-            {image.title}
-          </div>
+        <h3 className="font-semibold text-gray-300 text-lg whitespace-nowrap overflow-hidden">
+          <span>{image.title}</span>
         </h3>
         <div className="max-h-20 overflow-auto rounded-lg bg-black/20 backdrop-blur-xl border border-white/10 p-3 minimal-scrollbar">
           <p className="text-sm leading-relaxed text-gray-300">
