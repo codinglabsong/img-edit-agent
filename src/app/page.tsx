@@ -12,7 +12,7 @@ const INITIAL_MESSAGE: Message = {
   content:
     "Hi there! I'm Pablo, your AI image-editing assistant.\
      Upload an image or choose one from above, then tell me how you'd like it edited.\
-     You can even select multiple images for reference. 🎨✨",
+     You can even select multiple images for reference—and I'll refine your prompt to help you get the best results. 🎨✨",
   sender: "agent",
   timestamp: new Date(), // Use current time instead of static timestamp
 };

@@ -5,26 +5,38 @@ import { useState, useEffect } from "react";
 // Data
 const examples = [
   {
-    title: "Vintage Black & White",
+    title: "Night to Day",
     prompt:
-      "Convert this photo to a vintage black and white style with film grain texture",
+      "AI-Improved Prompt: A high-quality Canon photo of a traditional street in Seoul during the daytime, \
+      bathed in bright natural sunlight, with hanok houses under a clear blue sky, and Namsan Tower and modern \
+      skyscrapers visible in the distance. Vibrant colors, crisp details, and a lively atmosphere.",
+    beforeImage:
+      "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/seoul_night.png",
+    afterImage:
+      "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/gen_seoul_day.png",
+  },
+  {
+    title: "Artistic to Realistic",
+    prompt:
+      "AI-Improved Prompt: A realistic photograph of a professional woman, headshot, 30s, confident and approachable expression, \
+      sharp focus on the eyes, soft and even studio lighting, subtle bokeh background of a modern office, wearing elegant business attire, \
+      high-resolution, professional portrait photography style.",
     beforeImage:
       "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/picasso_woman.png",
-    afterImage: "/examples/after-1.jpg",
+    afterImage:
+      "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/gen_woman.png",
   },
   {
-    title: "Picasso Abstract Style",
+    title: "Monochrome to Color",
     prompt:
-      "Transform this into a Picasso-style abstract portrait with geometric shapes and bold colors",
-    beforeImage: "/examples/before-2.jpg",
-    afterImage: "/examples/after-2.jpg",
-  },
-  {
-    title: "Dramatic Sunset Lighting",
-    prompt:
-      "Apply a dramatic sunset lighting effect with warm orange and purple tones",
-    beforeImage: "/examples/before-3.jpg",
-    afterImage: "/examples/after-3.jpg",
+      "AI-Improved Prompt: A vibrant, colorized vintage photograph of New York City's skyline at night, \
+       showcasing the iconic Empire State and Chrysler Buildings illuminated with warm, glowing lights. \
+       The scene captures the bustling energy of the city with reflections on wet streets, a rich, realistic color palette, \
+       and a subtle film grain to maintain its classic, timeless feel. Cinematic night photography style.",
+    beforeImage:
+      "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/nyc_bw.png",
+    afterImage:
+      "https://img-edit-agent-bucket.s3.us-east-1.amazonaws.com/public/gen_color_nyc.png",
   },
 ];
 
