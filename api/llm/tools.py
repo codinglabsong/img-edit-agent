@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
 
+from llm.prompt import generate_image_tool_description
 from llm.utils import create_or_update_ip_generation_count, get_ip_generation_count, store_tool_result, upload_generated_image_to_s3
 
 load_dotenv()
@@ -148,44 +149,11 @@ def _generate_image_core(
             del image_data
 
 
-# def _coerce_tool_inputs(raw):
-#     if isinstance(raw, GenerateImageToolInput):
-#         return raw
-#     if isinstance(raw, dict):
-#         if "kwargs" in raw and isinstance(raw["kwargs"], dict):
-#             raw = raw["kwargs"]
-#         elif "tool_input" in raw and isinstance(raw["tool_input"], dict):
-#             raw = raw["tool_input"]
-#         return GenerateImageToolInput.model_validate(raw)
-#     # last resort
-#     return GenerateImageToolInput.model_validate(raw)
-
-
-# def _generate_image_wrapper(inputs, config: dict):
-#     print("[TOOLS] generate_image_wrapper called")
-#     data = _coerce_tool_inputs(inputs)
-#     print(f"[TOOLS] coerced tool inputs: {data}")
-#     client_ip = (config or {}).get("configurable", {}).get("client_ip")
-#     print(f"[TOOLS] client IP: {client_ip}")
-#     print("[TOOLS] generating image")
-#     return _generate_image_core(
-#         prompt=data.prompt,
-#         user_id=data.user_id,
-#         image_url=data.image_url,
-#         title=data.title or "Generated Image",
-#         client_ip=client_ip,
-#     )
-
-
 def initialize_tools(client_ip: str):
     """Initialize the tools for the agent."""
     print("[TOOLS] building generate_image tool")
-    # generate_image = RunnableLambda(_generate_image_wrapper)
-    # print("[TOOLS] setting name and description for generate_image tool")
-    # generate_image.name = "generate_image"
-    # generate_image.description = generate_image_tool_description
 
-    def generate_image(
+    def generate_image_func(
         prompt: str,
         user_id: str,
         image_url: str,
@@ -200,9 +168,9 @@ def initialize_tools(client_ip: str):
         )
 
     generate_image_tool = StructuredTool.from_function(
-        func=generate_image,
+        func=generate_image_func,
         name="generate_image",
-        description="Generate a high-quality image based on a prompt.",
+        description=generate_image_tool_description,
         args_schema=GenerateImageToolInput,  # optional: enforces/advertises schema
     )
 
