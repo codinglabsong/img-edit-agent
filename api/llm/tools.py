@@ -3,10 +3,9 @@ from typing import Optional
 
 import replicate
 from dotenv import load_dotenv
-from langchain_core.runnables import RunnableLambda
+from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
 
-from llm.prompt import generate_image_tool_description
 from llm.utils import create_or_update_ip_generation_count, get_ip_generation_count, store_tool_result, upload_generated_image_to_s3
 
 load_dotenv()
@@ -149,48 +148,70 @@ def _generate_image_core(
             del image_data
 
 
-def _coerce_tool_inputs(raw):
-    if isinstance(raw, GenerateImageToolInput):
-        return raw
-    if isinstance(raw, dict):
-        if "kwargs" in raw and isinstance(raw["kwargs"], dict):
-            raw = raw["kwargs"]
-        elif "tool_input" in raw and isinstance(raw["tool_input"], dict):
-            raw = raw["tool_input"]
-        return GenerateImageToolInput.model_validate(raw)
-    # last resort
-    return GenerateImageToolInput.model_validate(raw)
+# def _coerce_tool_inputs(raw):
+#     if isinstance(raw, GenerateImageToolInput):
+#         return raw
+#     if isinstance(raw, dict):
+#         if "kwargs" in raw and isinstance(raw["kwargs"], dict):
+#             raw = raw["kwargs"]
+#         elif "tool_input" in raw and isinstance(raw["tool_input"], dict):
+#             raw = raw["tool_input"]
+#         return GenerateImageToolInput.model_validate(raw)
+#     # last resort
+#     return GenerateImageToolInput.model_validate(raw)
 
 
-def _generate_image_wrapper(inputs, config: dict):
-    print("[TOOLS] generate_image_wrapper called")
-    data = _coerce_tool_inputs(inputs)
-    print(f"[TOOLS] coerced tool inputs: {data}")
-    client_ip = (config or {}).get("configurable", {}).get("client_ip")
-    print(f"[TOOLS] client IP: {client_ip}")
-    print("[TOOLS] generating image")
-    return _generate_image_core(
-        prompt=data.prompt,
-        user_id=data.user_id,
-        image_url=data.image_url,
-        title=data.title or "Generated Image",
-        client_ip=client_ip,
-    )
+# def _generate_image_wrapper(inputs, config: dict):
+#     print("[TOOLS] generate_image_wrapper called")
+#     data = _coerce_tool_inputs(inputs)
+#     print(f"[TOOLS] coerced tool inputs: {data}")
+#     client_ip = (config or {}).get("configurable", {}).get("client_ip")
+#     print(f"[TOOLS] client IP: {client_ip}")
+#     print("[TOOLS] generating image")
+#     return _generate_image_core(
+#         prompt=data.prompt,
+#         user_id=data.user_id,
+#         image_url=data.image_url,
+#         title=data.title or "Generated Image",
+#         client_ip=client_ip,
+#     )
 
 
-def initialize_tools():
+def initialize_tools(client_ip: str):
     """Initialize the tools for the agent."""
     print("[TOOLS] building generate_image tool")
-    generate_image = RunnableLambda(_generate_image_wrapper)
-    print("[TOOLS] setting name and description for generate_image tool")
-    generate_image.name = "generate_image"
-    generate_image.description = generate_image_tool_description
-    return [generate_image]
+    # generate_image = RunnableLambda(_generate_image_wrapper)
+    # print("[TOOLS] setting name and description for generate_image tool")
+    # generate_image.name = "generate_image"
+    # generate_image.description = generate_image_tool_description
+
+    def generate_image(
+        prompt: str,
+        user_id: str,
+        image_url: str,
+        title: str = "Generated Image",
+    ) -> str:
+        return _generate_image_core(
+            prompt=prompt,
+            user_id=user_id,
+            image_url=image_url,
+            title=title,
+            client_ip=client_ip,
+        )
+
+    generate_image_tool = StructuredTool.from_function(
+        func=generate_image,
+        name="generate_image",
+        description="Generate a high-quality image based on a prompt.",
+        args_schema=GenerateImageToolInput,  # optional: enforces/advertises schema
+    )
+
+    return [generate_image_tool]
 
 
 if __name__ == "__main__":
     # Test the tool
-    generate_image = initialize_tools()[0]
+    generate_image = initialize_tools("127.0.0.1")[0]
     output = generate_image.invoke(
         {
             "prompt": "A woman in a beautiful sunset over a calm ocean",
