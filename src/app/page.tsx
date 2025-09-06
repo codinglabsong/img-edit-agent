@@ -276,7 +276,7 @@ export default function Home() {
                   Transform your images with AI-powered editing
                 </p>
                 <a
-                  href="https://github.com/codinglabsong/image-edit-agent"
+                  href="https://github.com/codinglabsong/img-edit-agent"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-100 mt-1 text-sm sm:text-base hover:text-blue-600 transition-colors duration-200 underline decoration-gray-100 hover:decoration-blue-600"
