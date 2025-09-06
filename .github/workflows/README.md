@@ -17,6 +17,16 @@ This directory contains GitHub Actions workflows for automated testing and deplo
   - Automatic deployment to HF Spaces (main branch only)
   - Uses existing HF secrets
 
+### `test-nextjs.yml` - Next.js Tests
+
+- **Triggers**:
+  - Push to main (Next.js changes only) - Runs lint and tests
+  - Pull Requests to main (Next.js changes only) - Runs lint and tests
+- **Purpose**: Verify frontend code with Vitest
+- **Features**:
+  - Installs dependencies with pnpm
+  - Executes `pnpm lint` and `pnpm test`
+
 ## Environment Variables
 
 The workflow uses a smart fallback system for environment variables:
