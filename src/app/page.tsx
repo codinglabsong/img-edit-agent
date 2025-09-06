@@ -275,6 +275,14 @@ export default function Home() {
                 <p className="text-gray-100 mt-1 text-sm sm:text-base">
                   Transform your images with AI-powered editing
                 </p>
+                <a
+                  href="https://github.com/codinglabsong/image-edit-agent"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-100 mt-1 text-sm sm:text-base hover:text-blue-600 transition-colors duration-200 underline decoration-gray-100 hover:decoration-blue-600"
+                >
+                  View on GitHub
+                </a>
               </div>
             </div>
           </div>
@@ -282,12 +290,14 @@ export default function Home() {
           {/* Image Gallery */}
           <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/20">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-200">
+              <h2 className="text-xl font-semibold text-gray-200 whitespace-nowrap">
                 Your Gallery
               </h2>
               {selectedImages.size === 0 ? (
                 <p className="text-sm text-gray-400 text-right">
-                  Select or Scroll
+                  Select, Download,
+                  <br className="block sm:hidden" />
+                  &nbsp;or Scroll Images
                 </p>
               ) : (
                 <div className="bg-blue-600/20 backdrop-blur-xl rounded-xl px-3 border border-blue-500/30">
