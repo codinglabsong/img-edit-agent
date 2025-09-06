@@ -101,3 +101,10 @@ Push to main → deploy-api.yml (tests + deploy if tests pass)
 - ✅ **Quality Gate**: Deployment only happens if tests pass
 - ✅ **Comprehensive**: Covers unit, integration, and error cases
 - ✅ **Simplified**: Single workflow handles both testing and deployment
+- ✅ **Proper Dependencies**: Installs dev dependencies including pytest
+
+## Troubleshooting
+
+### "No module named pytest" Error
+
+If you see this error, it means pytest isn't installed. The workflow installs dev dependencies with `.[dev]` to include pytest and other testing tools.

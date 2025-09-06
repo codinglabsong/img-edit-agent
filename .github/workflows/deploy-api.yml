@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install uv
-          uv pip install --system --no-cache-dir .
+          uv pip install --system --no-cache-dir .[dev]
 
       - name: Run tests
         env:
@@ -66,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install uv
-          uv pip install --system --no-cache-dir .
+          uv pip install --system --no-cache-dir .[dev]
 
       - name: Install HF CLI
         run: |
