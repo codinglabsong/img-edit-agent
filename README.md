@@ -267,8 +267,7 @@ Returns the API status and database connectivity.
 5. Open a Pull Request
 
 ## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under a custom Non-Commercial MIT-Style License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
