@@ -28,6 +28,7 @@ I created this project with a clear and simple motivation: to build a genuinely 
 - **Responsive Design**: Beautiful, adaptive interface with glassmorphism effects that works seamlessly on both desktop and mobile
 - **Image Gallery**: Upload, organize, and manage your image collection
 - **Image Upload**: Seamless image upload with AWS S3 integration
+- **Secure Access**: Time-limited presigned URLs for secure image access
 - **Real-time Chat**: Interactive chat interface with markdown support
 - **Sample Images**: Curated collection of example images to get started
 - **Auto-scroll Navigation**: Smooth image gallery navigation with arrow controls
