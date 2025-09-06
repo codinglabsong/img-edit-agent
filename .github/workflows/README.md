@@ -4,7 +4,20 @@ This directory contains GitHub Actions workflows for automated testing and deplo
 
 ## Workflows
 
-### `deploy-api.yml` - Testing and Deployment
+### `test-frontend.yml` - Frontend Testing
+
+- **Triggers**:
+  - Push to main/develop (Frontend changes) - Runs tests
+  - Pull Requests to main (Frontend changes) - Runs tests
+  - Manual dispatch
+- **Purpose**: Test Next.js frontend code
+- **Features**:
+  - Unit tests with Vitest
+  - Linting with ESLint
+  - Type checking with TypeScript
+  - Build verification
+
+### `deploy-api.yml` - API Testing and Deployment
 
 - **Triggers**:
   - Push to main (API changes only) - Runs tests + deploys
@@ -88,9 +101,14 @@ pnpm test:api:db
 ## Workflow Flow
 
 ```
-Pull Request → deploy-api.yml (tests only)
+Frontend Changes:
+Pull Request → test-frontend.yml (frontend tests)
+Push to main → test-frontend.yml (frontend tests)
+
+API Changes:
+Pull Request → deploy-api.yml (API tests only)
      ↓
-Push to main → deploy-api.yml (tests + deploy if tests pass)
+Push to main → deploy-api.yml (API tests + deploy if tests pass)
 ```
 
 ## Benefits
