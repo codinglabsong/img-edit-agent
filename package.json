@@ -11,7 +11,8 @@
     "prepare": "husky",
     "test:api": "cd api && python -m pytest tests/ -v -m 'not database'",
     "test:api:all": "cd api && python -m pytest tests/ -v",
-    "test:api:db": "cd api && python -m pytest tests/ -v -m 'database'"
+    "test:api:db": "cd api && python -m pytest tests/ -v -m 'database'",
+    "test": "vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
@@ -27,6 +28,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -35,10 +38,12 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
