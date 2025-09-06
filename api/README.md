@@ -10,73 +10,61 @@ pinned: false
 
 # AI Image Editor API
 
-A FastAPI server that provides chat endpoints for the AI Image Editor application.
-
-## Structure
-
-```
-api/
-├── server/
-│   └── main.py          # FastAPI server with chat endpoints
-├── llm/                 # LLM-related modules (for future use)
-├── pyproject.toml       # Dependencies and project configuration
-└── README.md           # This file
-```
+FastAPI service powering the Img Edit Agent web app. It provides chat-driven image editing and generation.
 
 ## Features
 
-- **Chat Endpoint**: `/chat` - Main chat endpoint with full context
-- **Health Check**: `/health` - Server health monitoring
-- **Template Responses**: Context-aware template responses
+- **POST `/chat`** – Send a message and optional image metadata; receives an AI reply with optional generated image details.
+- **GET `/health`** – Reports service and database status.
+- **Rate limiting & startup hooks** – Initializes a rate-limit table on startup and logs shutdown events.
+- **Modular LLM tools** – Uses the `llm` package for agent logic, database connections, and utilities.
 
-## Endpoints
+## Project Structure
+
+```
+api/
+├── server/         # FastAPI application
+├── llm/            # LLM agent and helpers
+├── tests/          # pytest suite
+├── Dockerfile      # Container build
+└── README.md
+```
+
+## Running Locally
+
+```bash
+pip install -e .[dev]
+uvicorn server.main:app --host 0.0.0.0 --port 8000
+```
+
+## API Reference
 
 ### POST `/chat`
 
-Main chat endpoint that accepts:
-
-- `message`: User's message
-- `selected_images`: List of selected image IDs
-- `user_id`: Optional user identifier
-
-### GET `/health`
-
-Health check endpoint
-
-## Running the Server
-
-```bash
-# Install dependencies
-pip install -e .
-
-# Run the server
-cd server
-python main.py
-
-# Or with uvicorn directly
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-## Development
-
-The project uses:
-
-- **FastAPI** for the web framework
-- **Pydantic** for data validation
-- **Uvicorn** for ASGI server
-- **Ruff** for linting and formatting
-- **Black** for code formatting
-- **MyPy** for type checking
-
-## Deployment
-
-This server is designed to be deployed on Hugging Face Spaces as an API endpoint.
-
-## Response Format
+Request body:
 
 ```json
 {
-  "response": "AI response message",
-  "status": "success"
+  "message": "Describe edit",
+  "selected_images": [{ "id": "...", "url": "..." }],
+  "user_id": "optional"
 }
 ```
+
+Response:
+
+```json
+{
+  "response": "AI response",
+  "status": "success",
+  "generated_image": { "id": "...", "url": "..." }
+}
+```
+
+### GET `/health`
+
+Returns service and database status.
+
+## Deployment
+
+This API is built to run as a Docker container on [Hugging Face Spaces](https://huggingface.co/spaces).
