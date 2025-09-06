@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:api": "cd api && python -m pytest tests/ -v -m 'not database'",
+    "test:api:all": "cd api && python -m pytest tests/ -v",
+    "test:api:db": "cd api && python -m pytest tests/ -v -m 'database'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",

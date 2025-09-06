@@ -5,10 +5,14 @@ on:
     branches: [main]
     paths:
       - "api/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "api/**"
   workflow_dispatch:
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,9 +33,40 @@ jobs:
           pip install uv
           uv pip install --system --no-cache-dir .
 
-      # - name: Run tests
-      #   run: |
-      #     python -m pytest tests/ -v
+      - name: Run tests
+        env:
+          # Use actual secrets when available, fallback to test values
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME || 'test-bucket' }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || 'test-key' }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || 'test-secret' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://test:test@localhost:5432/test' }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY || 'test-key' }}
+        run: |
+          python -m pytest tests/ -v -m "not database" --tb=short
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system --no-cache-dir .
 
       - name: Install HF CLI
         run: |
