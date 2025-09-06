@@ -1,4 +1,4 @@
-# API Tests
+# API Test
 
 This directory contains comprehensive tests for the API functionality.
 
