@@ -36,6 +36,7 @@ I created this project with a clear and simple motivation: to build a genuinely 
 
 - **LLM Integration**: Advanced language model for understanding and processing requests
 - **Image Generation**: Powered by Replicate's state-of-the-art models
+- **Prompt Engineering**: Sophisticated prompt optimization and enhancement techniques
 - **PostgreSQL Managed Database**: Robust connection management with Neon optimization
 - **Rate Limiting**: Built-in usage controls and IP-based generation limits
 - **Connection Management**: Automatic reconnection and health monitoring for database
@@ -267,6 +268,7 @@ Returns the API status and database connectivity.
 5. Open a Pull Request
 
 ## 📄 License
+
 This project is licensed under a custom Non-Commercial MIT-Style License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
