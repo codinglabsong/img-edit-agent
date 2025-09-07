@@ -7,6 +7,7 @@ A sophisticated AI-powered image editing platform that combines conversational A
 AI Image Editor is a full-stack application consisting of a modern Next.js frontend and a powerful Python FastAPI backend. The frontend provides an intuitive chat interface for image editing, while the backend handles AI processing, image generation, and intelligent prompt refinement.
 
 **Live Demo**: [img-edit-agent-flax.vercel.app/](https://img-edit-agent-flax.vercel.app/) 🚀
+**Video Demo**: [Google Drive](https://drive.google.com/file/d/1wn7A7jr6veVHcJxxWmfemWW-3cUV3jvd/view?usp=sharing)
 
 > ⚠️ **Note**: The agent might take time to boot up if unused for an extended period of time.
 
